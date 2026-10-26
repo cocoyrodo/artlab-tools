@@ -1,8 +1,14 @@
 // Idiomas de ART LAB Tools: los mismos 6 de la App ART LAB, con la misma
-// clave de preferencia (artlab_language). Las traducciones viven en
-// i18n-dict.js (texto en español → traducción), así funcionan al instante
-// y sin servicios externos. El español es el texto original del código.
-import { DICT } from "/assets/i18n-dict.js?v=20261026g";
+// clave de preferencia (artlab_language). El español es el texto original.
+//
+// De dónde sale cada traducción, en orden:
+//   1. i18n-dict.js: traducciones revisadas, incluidas en el sitio (funcionan
+//      al instante, también en el ingreso antes de iniciar sesión).
+//   2. Memoria de este dispositivo (localStorage), con lo ya traído antes.
+//   3. Edge Function `translate`: busca en la base de datos translation_cache
+//      y, si el texto es nuevo, lo traduce con Google Cloud Translation y lo
+//      guarda ahí para todas. Mientras llega, se muestra en español.
+import { DICT } from "/assets/i18n-dict.js?v=20261026h";
 
 export const LANGS = [
   ["es", "Español"], ["en", "English"], ["fr", "Français"],
@@ -26,10 +32,48 @@ document.documentElement.lang = lang;
 
 export const locale = () => LOCALES[lang];
 
+// Traducciones traídas de la base de datos / Google, guardadas en el dispositivo
+const MEMO_KEY = "artlab_tools_tr_" + lang;
+let memoria = {};
+try { memoria = JSON.parse(localStorage.getItem(MEMO_KEY) || "{}"); } catch { memoria = {}; }
+const pendientes = new Set(), pedidos = new Set(), oyentes = new Set();
+let traductor = null, timer = null;
+
+// auth.js entrega la función que llama a la Edge Function con la sesión
+export function configurarTraductor(fn) { traductor = fn; if (pendientes.size) programar(); }
+// Las páginas registran cómo volver a pintarse cuando llegan traducciones nuevas
+export function alTraducir(fn) { oyentes.add(fn); }
+
+function programar() {
+  clearTimeout(timer);
+  timer = setTimeout(pedir, 60);
+}
+
+async function pedir() {
+  if (!traductor || !pendientes.size) return;
+  const lote = [...pendientes].slice(0, 150);
+  lote.forEach((k) => { pendientes.delete(k); pedidos.add(k); });
+  let nuevas = 0;
+  try {
+    const res = await traductor(lang, lote);
+    lote.forEach((k, i) => { if (res?.[i] && res[i] !== k) { memoria[k] = res[i]; nuevas++; } });
+    if (nuevas) { try { localStorage.setItem(MEMO_KEY, JSON.stringify(memoria)); } catch { /* sin espacio */ } }
+  } catch (e) {
+    console.warn("ART LAB Tools: no se pudo traducir con Google", e);
+  }
+  if (pendientes.size) programar();
+  if (nuevas) oyentes.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
+}
+
 // t('Hola, {nombre}', { nombre }): los valores deben venir ya escapados si van a HTML
 export function t(es, vars) {
-  const fila = DICT[es];
-  let txt = lang === "es" || !fila ? es : (fila[CODES.indexOf(lang) - 1] || es);
+  let txt = es;
+  if (lang !== "es") {
+    const fila = DICT[es];
+    if (fila) txt = fila[CODES.indexOf(lang) - 1] || es;
+    else if (memoria[es]) txt = memoria[es];
+    else if (!pedidos.has(es)) { pendientes.add(es); programar(); }
+  }
   if (vars) txt = txt.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
   return txt;
 }

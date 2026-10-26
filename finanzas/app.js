@@ -1,7 +1,7 @@
-import { supabase, withSession, esc } from "/assets/auth.js?v=20261026g";
-import { renderShell } from "/assets/shell.js?v=20261026g";
-import { t, locale, traducirEstaticos } from "/assets/i18n.js?v=20261026g";
-import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261026g";
+import { supabase, withSession, esc } from "/assets/auth.js?v=20261026h";
+import { renderShell } from "/assets/shell.js?v=20261026h";
+import { t, locale, traducirEstaticos, alTraducir } from "/assets/i18n.js?v=20261026h";
+import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261026h";
 
 const root = document.getElementById("root");
 let app; // contenedor de la vista, dentro de la estructura común
@@ -30,6 +30,8 @@ let session, movs = [], moneda = "CLP";
 let perfil = { modalidad: null, comision_pct: null, materiales_salon: false };
 let mes = new Date().toISOString().slice(0, 7);
 let editId = null;
+let repintar = null; // vista actual, para volver a pintarla cuando llegan traducciones nuevas
+alTraducir(() => app && repintar?.());
 
 const hoy = () => {
   const d = new Date();
@@ -77,6 +79,7 @@ async function cargar() {
 
 // Pregunta "¿Cómo trabajas?" (primera vez, o desde "Tus datos")
 function renderModalidad(primeraVez = false) {
+  repintar = () => renderModalidad(primeraVez);
   const actual = perfil.modalidad || "";
   app.innerHTML = `
     <section class="hello">
@@ -135,6 +138,7 @@ function renderModalidad(primeraVez = false) {
 }
 
 function render() {
+  repintar = render;
   const r = resumenMes(movs, mes);
   const p = pendientes(movs);
   const delMes = movs.filter((m) => mesDe(m.fecha) === mes);

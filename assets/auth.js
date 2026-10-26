@@ -2,14 +2,24 @@
 // Solo usa la clave pública (publishable/anon) de Supabase: la seguridad
 // de los datos la garantiza Row Level Security en la base de datos.
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm";
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SITE_URL } from "/assets/config.js?v=20261026g";
-import { t, lang, nombrePais, selectorIdioma, activarSelector, aplicarIdiomaCuenta } from "/assets/i18n.js?v=20261026g";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SITE_URL } from "/assets/config.js?v=20261026h";
+import { t, lang, nombrePais, selectorIdioma, activarSelector, aplicarIdiomaCuenta, configurarTraductor } from "/assets/i18n.js?v=20261026h";
 
 // Se lee antes de crear el cliente, porque el cliente limpia el hash al procesarlo
 const IS_RECOVERY = location.hash.includes("type=recovery");
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+});
+
+// Textos nuevos sin traducción: se piden a la Edge Function `translate`
+// (base de datos de traducciones + Google Cloud Translation). Requiere sesión.
+configurarTraductor(async (target, texts) => {
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) return null;
+  const { data: res, error } = await supabase.functions.invoke("translate", { body: { target, texts } });
+  if (error) throw error;
+  return res?.translations || null;
 });
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

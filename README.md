@@ -57,3 +57,26 @@ Pruebas: `node tests/calc.test.mjs`
   (`index.html`, `finanzas/index.html`, `finanzas/app.js`, `assets/shell.js`,
   `assets/auth.js`). `auth.js` debe importarse siempre con la misma URL para no
   crear dos clientes de Supabase.
+
+## Idiomas y traducciones
+
+Seis idiomas, como la App ART LAB: ES (original), EN, FR, IT, PT y NL, con el
+mismo selector y la misma preferencia (`artlab_language`). De dónde sale cada
+traducción, en orden:
+
+1. **`assets/i18n-dict.js`**: traducciones revisadas a mano, incluidas en el
+   sitio. Funcionan al instante y también en el ingreso, sin sesión.
+2. **Memoria del dispositivo** (`localStorage`) con lo ya traído antes.
+3. **Edge Function `translate`** (Supabase): busca en la tabla
+   `translation_cache` y, si el texto es nuevo, lo traduce con **Google Cloud
+   Translation API** (igual que la App) y lo guarda ahí. Cada texto se paga una
+   sola vez. Requiere sesión, para que nadie ajeno gaste la cuota.
+
+`translation_cache.origen` = `manual` (cargadas desde i18n-dict.js) o `google`.
+La clave de Google es el secreto `ARTLAB_GOOGLE_TRANSLATE_API_KEY` del proyecto
+Supabase (mismo nombre que en la App); nunca va en este repositorio.
+
+**Texto nuevo en el código:** se escribe en español dentro de `t("…")`. Se
+traducirá solo con Google la primera vez que alguien lo vea. Para revisarlo a
+mano, agregarlo también a `i18n-dict.js` (`node tests/i18n.test.mjs` avisa los
+que faltan; la publicación exige que el diccionario esté completo).

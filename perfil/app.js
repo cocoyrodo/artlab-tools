@@ -1,9 +1,9 @@
 // Perfil de la alumna, con la misma estructura que el Perfil de la App ART LAB:
 // Cuenta, Preferencias, Soporte y legal, y Cerrar sesión. Cada fila abre su
 // propia pantalla (#datos, #correo, #clave, #idioma, #moneda, #notificaciones).
-import { supabase, withSession, esc, PAISES, paisProbable, errorClave, traducir } from "/assets/auth.js?v=20261026g";
-import { renderShell, iniciales } from "/assets/shell.js?v=20261026g";
-import { t, lang, LANGS, setLang, nombrePais } from "/assets/i18n.js?v=20261026g";
+import { supabase, withSession, esc, PAISES, paisProbable, errorClave, traducir } from "/assets/auth.js?v=20261026h";
+import { renderShell, iniciales } from "/assets/shell.js?v=20261026h";
+import { t, lang, LANGS, setLang, nombrePais, alTraducir } from "/assets/i18n.js?v=20261026h";
 
 const root = document.getElementById("root");
 let app, session, perfil = {};
@@ -42,6 +42,8 @@ withSession(root, async (s) => {
   const { data } = await supabase.from("profiles").select("*").eq("id", s.user.id).maybeSingle();
   perfil = data || {};
   window.addEventListener("hashchange", pintar);
+  // Traducciones nuevas: se repinta solo el menú, nunca un formulario a medio llenar
+  alTraducir(() => { if (!location.hash.slice(1)) pintar(); });
   pintar();
 }, { title: t("Entra a ART LAB Tools") });
 

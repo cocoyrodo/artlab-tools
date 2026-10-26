@@ -13,15 +13,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/styles.css?v=20261026g">
+  <link rel="stylesheet" href="/assets/styles.css?v=20261026h">
 </head>
 <body>
   <div id="root"></div>
 
   <script type="module">
-    import { supabase, esc } from "/assets/auth.js?v=20261026g";
-    import { renderShell, ICONS, TOOLS } from "/assets/shell.js?v=20261026g";
-    import { t, aplicarIdiomaCuenta } from "/assets/i18n.js?v=20261026g";
+    import { supabase, esc } from "/assets/auth.js?v=20261026h";
+    import { renderShell, ICONS, TOOLS } from "/assets/shell.js?v=20261026h";
+    import { t, aplicarIdiomaCuenta, alTraducir } from "/assets/i18n.js?v=20261026h";
 
     const { data } = await supabase.auth.getSession();
     const session = data.session;
@@ -30,7 +30,7 @@
       const nombre = session?.user?.user_metadata?.nombre?.split(" ")[0];
       document.title = "ART LAB Tools · Cocó & Rodo";
 
-      view.innerHTML = `
+      const pintar = () => view.innerHTML = `
         <section class="hello">
           <small>ART LAB Tools</small>
           <h1>${nombre ? t("Hola, <em>{nombre}</em>", { nombre: esc(nombre) }) : t("Tu negocio, <em>en orden</em>")}</h1>
@@ -52,6 +52,8 @@
         </div>
 
         <p class="foot">${t("Creado por")} <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>`;
+      pintar();
+      alTraducir(pintar);
     }
   </script>
 </body>
