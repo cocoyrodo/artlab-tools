@@ -3,56 +3,52 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>ART LAB Tools</title>
+  <title>ART LAB Tools · Cocó &amp; Rodo</title>
   <meta name="description" content="Herramientas digitales gratuitas de ART LAB para nail artists y emprendedoras.">
-  <meta name="theme-color" content="#FDF0F7">
+  <meta name="theme-color" content="#CC00A3">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="/"><b>ART LAB</b><span>Tools</span></a>
-    <div class="user" id="userbar"></div>
-  </header>
-
-  <main class="wrap">
-    <section class="hero">
-      <h1>Herramientas gratis para tu negocio</h1>
-      <p>Organiza, administra y haz crecer tu emprendimiento. Una sola cuenta, todas las herramientas, desde tu celular o computador.</p>
-    </section>
-
-    <section class="tools">
-      <a class="card tool" href="/finanzas/">
-        <div class="ico">💗</div>
-        <h3>Control financiero</h3>
-        <p>Registra ventas, costos y gastos. Mira cuánto ganas cada mes.</p>
-      </a>
-      <div class="card tool soon">
-        <div class="ico">🗓️</div>
-        <h3>Organizador <span class="badge">Pronto</span></h3>
-        <p>Agenda, clientas y recordatorios.</p>
-      </div>
-      <div class="card tool soon">
-        <div class="ico">🧮</div>
-        <h3>Calculadora <span class="badge">Pronto</span></h3>
-        <p>Calcula el precio justo de tus servicios.</p>
-      </div>
-      <div class="card tool soon">
-        <div class="ico">📱</div>
-        <h3>Contenido <span class="badge">Pronto</span></h3>
-        <p>Planifica tus publicaciones y Reels.</p>
-      </div>
-    </section>
-
-    <p class="muted center" style="margin-top:32px;font-size:.85rem">Un regalo de <a href="https://artcocoyrodo.com">ART LAB · Coco y Rodo</a></p>
-  </main>
+  <div id="root"></div>
 
   <script type="module">
-    import { supabase, renderUserBar } from "/assets/auth.js";
+    import { supabase, esc } from "/assets/auth.js";
+    import { renderShell, ICONS, TOOLS } from "/assets/shell.js";
+
     const { data } = await supabase.auth.getSession();
-    renderUserBar(document.getElementById("userbar"), data.session);
+    const session = data.session;
+    const view = renderShell(document.getElementById("root"), { active: "inicio", session });
+    const nombre = session?.user?.user_metadata?.nombre?.split(" ")[0];
+
+    view.innerHTML = `
+      <section class="hello">
+        <small>ART LAB Tools</small>
+        <h1>${nombre ? `Hola, <em>${esc(nombre)}</em>` : `Herramientas <em>gratis</em>`}</h1>
+        <p class="sub">Organiza, administra y haz crecer tu negocio. Una sola cuenta para todas las herramientas, desde tu celular o computador.</p>
+      </section>
+
+      <div class="apps">
+        ${TOOLS.map((t) => t.activa
+          ? `<a class="appb" href="${t.href}"><div class="ico">${ICONS[t.id]}</div><span>${t.nombre}</span><small>${t.detalle}</small></a>`
+          : `<div class="appb soon" aria-disabled="true"><div class="ico">${ICONS[t.id]}<i class="tag soft">Pronto</i></div><span>${t.nombre}</span><small>${t.detalle}</small></div>`
+        ).join("")}
+      </div>
+
+      <div class="card">
+        <span class="label">Nuevo</span>
+        <h2 style="font-size:22px;margin:6px 0 6px">Control <em style="font-family:'Cormorant Garamond',serif;color:var(--f);font-style:italic;font-weight:600">financiero</em></h2>
+        <p class="muted" style="margin:0 0 14px;font-size:14px;line-height:1.5">Registra tus ventas, costos y gastos, y mira cuánto ganas realmente cada mes.</p>
+        <a class="btn block" href="/finanzas/">${session ? "Abrir Finanzas" : "Empezar gratis"}</a>
+      </div>
+
+      <p class="foot">Un regalo de <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>`;
   </script>
 </body>
 </html>

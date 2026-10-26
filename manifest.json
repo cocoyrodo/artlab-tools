@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "ART LAB Tools",
+  "short_name": "ART LAB Tools",
+  "description": "Herramientas digitales gratuitas de ART LAB por Cocó & Rodo.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FDF0F7",
+  "theme_color": "#CC00A3",
+  "lang": "es",
+  "icons": [
+    { "src": "/assets/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/brand/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

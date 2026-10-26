@@ -1,7 +1,9 @@
-import { supabase, withSession, renderUserBar, esc } from "/assets/auth.js";
+import { supabase, withSession, esc } from "/assets/auth.js";
+import { renderShell } from "/assets/shell.js";
 import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV } from "./calc.js";
 
-const app = document.getElementById("app");
+const root = document.getElementById("root");
+let app; // contenedor de la vista, dentro de la estructura común
 const dlg = document.getElementById("mov-dialog");
 const form = document.getElementById("mov-form");
 const $ = (id) => document.getElementById(id);
@@ -33,9 +35,9 @@ const nombreMes = (m, opts = { month: "long", year: "numeric" }) => {
 };
 const fechaCorta = (f) => new Date(f + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "short" });
 
-withSession(app, async (s) => {
+withSession(root, async (s) => {
   session = s;
-  renderUserBar($("userbar"), s);
+  app = renderShell(root, { active: "finanzas", session: s });
   app.innerHTML = `<p class="muted center" style="margin-top:40px">Cargando tus datos…</p>`;
   await cargar();
 }, { title: "Entra a tu control financiero" });
@@ -65,6 +67,11 @@ function render() {
   const maxAbs = Math.max(1, ...meses.map((x) => Math.abs(x.g)));
 
   app.innerHTML = `
+    <section class="hello">
+      <small>Control financiero</small>
+      <h1>Tus <em>finanzas</em></h1>
+    </section>
+
     <div class="monthbar">
       <button class="btn ghost" id="prev" aria-label="Mes anterior">‹</button>
       <h1>${esc(nombreMes(mes))}</h1>
@@ -90,23 +97,23 @@ function render() {
     </div>
 
     ${p.lista.length ? `
-    <div class="section-title"><h2>Pendientes</h2></div>
+    <div class="fh"><h2><em>Pendientes</em></h2></div>
     <div class="card">
       <div class="kpis" style="margin-bottom:8px">
-        <div><small class="muted">Te deben</small><br><b>${fmt(p.porCobrar)}</b></div>
-        <div><small class="muted">Debes pagar</small><br><b>${fmt(p.porPagar)}</b></div>
+        <div class="kpi" style="padding:0"><small>Te deben</small><strong>${fmt(p.porCobrar)}</strong></div>
+        <div class="kpi" style="padding:0"><small>Debes pagar</small><strong>${fmt(p.porPagar)}</strong></div>
       </div>
       <ul class="list">${p.lista.map((m) => item(m, true)).join("")}</ul>
     </div>` : ""}
 
-    <div class="section-title"><h2>Movimientos</h2><span class="muted">${delMes.length}</span></div>
+    <div class="fh"><h2>Movimientos <em>del mes</em></h2><span class="muted">${delMes.length}</span></div>
     <div class="card">
       ${delMes.length ? `<ul class="list">${delMes.map((m) => item(m)).join("")}</ul>`
-        : `<div class="empty">Aún no hay movimientos este mes.<br>Empieza registrando tu primera venta 💗</div>`}
+        : `<div class="empty">Aún no hay movimientos este mes.<br>Empieza registrando tu primera venta.</div>`}
     </div>
 
     ${serv.length ? `
-    <div class="section-title"><h2>Por servicio</h2></div>
+    <div class="fh"><h2>Por <em>servicio</em></h2></div>
     <div class="card serv">
       <table>
         <thead><tr><th>Servicio</th><th>Ventas</th><th>Costos</th><th>Queda</th></tr></thead>
@@ -115,7 +122,7 @@ function render() {
       <p class="muted" style="font-size:.78rem;margin:8px 0 0">Solo ventas y materiales del servicio. Los gastos del negocio se restan en la ganancia del mes.</p>
     </div>` : ""}
 
-    <div class="section-title"><h2>Últimos 6 meses</h2></div>
+    <div class="fh"><h2>Últimos <em>6 meses</em></h2></div>
     <div class="card">
       <div class="chart" role="img" aria-label="Ganancia estimada de los últimos 6 meses">
         ${meses.map((x) => `<div class="col" title="${esc(nombreMes(x.m))}: ${esc(fmt(x.g))}">
@@ -124,10 +131,10 @@ function render() {
       </div>
     </div>
 
-    <div class="section-title"><h2>Tus datos</h2></div>
+    <div class="fh"><h2>Tus <em>datos</em></h2></div>
     <div class="card stack">
       <div class="row">
-        <div>
+        <div class="campo">
           <label for="moneda">Moneda</label>
           <select id="moneda">${["CLP", "MXN", "COP", "PEN", "ARS", "USD", "EUR"].map((c) => `<option ${c === moneda ? "selected" : ""}>${c}</option>`).join("")}</select>
         </div>
@@ -135,7 +142,7 @@ function render() {
       </div>
     </div>
 
-    <div class="section-title"><h2>¿Qué es cada cosa?</h2></div>
+    <div class="fh"><h2>¿Qué es <em>cada cosa</em>?</h2></div>
     <dl class="card help">
       <dt>Venta</dt><dd>Lo que vendiste. Si aún no te pagan, márcala como pendiente; cuando te paguen, ábrela y marca “pagado”. No la registres dos veces.</dd>
       <dt>Costo</dt><dd>Material que usas en tus servicios (esmaltes, tips, decoración).</dd>

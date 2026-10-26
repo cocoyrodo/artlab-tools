@@ -1,96 +1,141 @@
+/* Sistema visual de la App ART LAB (app.artcocoyrodo.com): mismas variables,
+   tipografías y componentes, para que Tools se sienta parte de la misma app. */
 :root {
-  --rosa-50: #FDF0F7;
-  --rosa-100: #FCE4F2;
-  --rosa-200: #F5C8E8;
-  --magenta: #CC00A3;
-  --magenta-dark: #A80081;
-  --ink: #1A0010;
-  --muted: #6B3A55;
+  --f: #CC00A3;          /* fucsia */
+  --m: #A80081;          /* fucsia hover */
+  --p: #FDF0F7;          /* rosa pétalo (fondo) */
+  --s: #FCE4F2;          /* rosa card */
+  --r2: #F5C8E8;         /* rosa decorativo */
+  --t: #1A0010;          /* tinta */
+  --g: #7A5A6B;          /* gris rosa */
+  --c: #6B3A55;          /* ciruela */
+  --gold: #C9A84C;       /* etiquetas de formulario */
+  --b: rgba(204, 0, 163, .10);
+  --shadow: 0 10px 34px rgba(26, 0, 16, .08);
+  --shadow-soft: 0 3px 16px rgba(26, 0, 16, .06);
   --ok: #1E7A4C;
   --warn: #B45309;
-  --radius: 16px;
-  --shadow: 0 6px 24px rgba(168, 0, 129, .08);
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0;
-  font-family: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: var(--rosa-50);
-  color: var(--ink);
-  line-height: 1.45;
+html, body {
+  margin: 0; min-height: 100%;
+  background: var(--p); color: var(--t);
+  font-family: Outfit, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
 }
-h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; margin: 0 0 .4em; line-height: 1.1; }
-h1 { font-size: 2.1rem; }
-h2 { font-size: 1.5rem; }
-a { color: var(--magenta-dark); }
-button, input, select, textarea { font: inherit; color: inherit; }
+button, a, input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3 { margin: 0; }
+.hidden { display: none !important; }
+.muted { color: var(--g); }
+.center { text-align: center; }
 
-.wrap { max-width: 720px; margin: 0 auto; padding: 0 16px 96px; }
-
-.topbar {
-  position: sticky; top: 0; z-index: 10;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 12px 16px;
-  background: rgba(253, 240, 247, .92);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--rosa-200);
+/* Contenedor y cabecera */
+.aa { max-width: 900px; margin: auto; min-height: 100vh; min-height: 100dvh; padding: 18px 18px 110px; }
+.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: inherit; }
+.brand-logo { height: 58px; width: auto; object-fit: contain; display: block; }
+.profile {
+  min-width: 44px; height: 40px; padding: 0 14px; border-radius: 999px;
+  background: #fff; border: 1px solid var(--b); display: inline-flex; align-items: center; justify-content: center;
+  color: var(--f); text-decoration: none; font-weight: 800; font-size: 11px; cursor: pointer;
 }
-.brand { display: flex; align-items: baseline; gap: 6px; text-decoration: none; color: var(--ink); }
-.brand b { font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.35rem; letter-spacing: .04em; }
-.brand span { color: var(--magenta); font-weight: 600; font-size: .9rem; letter-spacing: .12em; text-transform: uppercase; }
-.topbar .user { font-size: .85rem; color: var(--muted); display: flex; gap: 8px; align-items: center; }
 
-.hero { padding: 32px 0 16px; }
-.hero p { color: var(--muted); margin: 0; }
+/* Saludo */
+.hello { padding: 18px 0 18px; }
+.hello small, .label { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--f); text-transform: uppercase; }
+.hello h1 { margin: 7px 0 0; font-size: clamp(34px, 7vw, 48px); line-height: 1; font-weight: 800; }
+.hello em { font-family: 'Cormorant Garamond', serif; color: var(--f); font-style: italic; font-weight: 600; }
+.hello p.sub { margin: 8px 0 0; font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--g); font-size: 17px; line-height: 1.4; max-width: 520px; }
 
-.card {
-  background: #fff;
-  border: 1px solid var(--rosa-200);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
+/* Grilla de herramientas (igual a .apps/.appb/.ico de la App) */
+.apps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; margin: 12px 0 28px; }
+@media (min-width: 560px) { .apps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.appb { border: 0; background: none; text-align: center; color: var(--t); padding: 0; cursor: pointer; text-decoration: none; position: relative; }
+.appb span { font-size: 12px; font-weight: 700; display: block; }
+.appb small { display: block; color: var(--g); font-size: 10px; margin-top: 2px; }
+.appb.soon { opacity: .5; cursor: default; }
+.ico {
+  width: 72px; height: 72px; margin: auto auto 8px; border-radius: 23px;
+  background: #fff; border: 1px solid var(--b); display: grid; place-items: center;
+  box-shadow: var(--shadow-soft); position: relative;
 }
+.ico svg, .bottom svg, .sectionlink svg { width: 29px; height: 29px; stroke: var(--f); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tag {
+  position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
+  background: var(--f); color: #fff; font-size: 8px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+  border-radius: 999px; padding: 2px 6px; line-height: 1.2; white-space: nowrap; font-style: normal;
+}
+.tag.soft { background: var(--s); color: var(--m); }
+
+/* Tarjetas */
+.card { background: #fff; border: 1px solid var(--b); border-radius: 22px; padding: 18px; box-shadow: var(--shadow); }
 .stack > * + * { margin-top: 12px; }
+.fh { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 26px 0 12px; }
+.fh h2 { font-size: 25px; font-weight: 800; }
+.fh h2 em { font-family: 'Cormorant Garamond', serif; color: var(--f); font-style: italic; font-weight: 600; }
 
-.tools { display: grid; gap: 12px; grid-template-columns: 1fr; margin-top: 16px; }
-@media (min-width: 560px) { .tools { grid-template-columns: 1fr 1fr; } }
-.tool { display: block; text-decoration: none; color: inherit; transition: transform .15s; }
-.tool:hover { transform: translateY(-2px); }
-.tool .ico { font-size: 1.6rem; }
-.tool h3 { margin-top: 8px; }
-.tool p { margin: 0; color: var(--muted); font-size: .95rem; }
-.tool.soon { opacity: .55; pointer-events: none; }
-.badge { display: inline-block; font-size: .72rem; padding: 2px 8px; border-radius: 99px; background: var(--rosa-100); color: var(--magenta-dark); font-weight: 600; }
-
+/* Botones */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 46px; padding: 0 18px;
-  border: 0; border-radius: 99px;
-  background: var(--magenta); color: #fff; font-weight: 600;
-  cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 46px; padding: 0 20px; border: 0; border-radius: 30px;
+  background: var(--f); color: #fff; font-weight: 700; font-size: 14px;
+  cursor: pointer; text-decoration: none; transition: background-color .2s, transform .1s;
 }
-.btn:hover { background: var(--magenta-dark); }
-.btn:disabled { opacity: .6; cursor: default; }
-.btn.ghost { background: transparent; color: var(--magenta-dark); border: 1px solid var(--rosa-200); }
-.btn.ghost:hover { background: var(--rosa-100); }
-.btn.small { min-height: 34px; padding: 0 12px; font-size: .85rem; }
+.btn:hover { background: var(--m); }
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .7; cursor: default; }
+.btn.ghost { background: #fff; color: var(--f); border: 1px solid var(--b); }
+.btn.ghost:hover { background: var(--s); }
+.btn.small { min-height: 34px; padding: 0 14px; font-size: 12px; font-weight: 800; }
 .btn.block { width: 100%; }
-.linkbtn { background: none; border: 0; padding: 0; color: var(--magenta-dark); text-decoration: underline; cursor: pointer; font-size: .9rem; }
+.linkbtn { border: 0; background: none; padding: 0; color: var(--f); font-weight: 700; cursor: pointer; font-size: 13px; }
+.linkbtn.soft { color: #a58; font-weight: 400; text-decoration: underline; font-size: 12px; }
 
-label { display: block; font-size: .85rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
-input, select, textarea {
-  width: 100%; min-height: 46px; padding: 10px 14px;
-  border: 1px solid var(--rosa-200); border-radius: 12px; background: #fff;
-  font-size: 16px;
+/* Formularios (como .artlab-campo de la App) */
+.campo label { display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .5px; color: var(--gold); margin-bottom: 6px; }
+.campo input, .campo select, .campo textarea {
+  width: 100%; min-height: 46px; padding: 12px 16px; border-radius: 12px;
+  border: 1.5px solid rgba(204, 0, 163, .15); background: var(--p);
+  font-size: 16px; color: var(--t); outline: none;
+  transition: border-color .2s, background-color .2s, box-shadow .2s;
 }
-input:focus, select:focus, textarea:focus { outline: 2px solid var(--magenta); outline-offset: 1px; }
+.campo input:focus, .campo select:focus, .campo textarea:focus { border-color: var(--f); background: #fff; box-shadow: 0 0 0 4px rgba(204, 0, 163, .10); }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-.msg { padding: 10px 14px; border-radius: 12px; font-size: .92rem; }
-.msg.error { background: #FDE8EC; color: #9B1C31; }
-.msg.info { background: var(--rosa-100); color: var(--muted); }
-.hidden { display: none !important; }
-.muted { color: var(--muted); }
-.center { text-align: center; }
+.msg { padding: 12px 14px; border-radius: 14px; font-size: 12.5px; line-height: 1.55; }
+.msg.error { background: #FDE8EC; color: #9B1C31; border: 1px solid rgba(155, 28, 49, .15); }
+.msg.info { background: var(--p); color: var(--c); border: 1px solid rgba(204, 0, 163, .14); }
+
+/* Pantalla de ingreso (como .artlab-login-* de la App) */
+.login-page { max-width: 400px; margin: 0 auto; position: relative; width: 100%; padding: 12px 0 40px; min-height: 100vh; min-height: 100dvh; overflow: hidden; }
+.deco-circle { position: absolute; top: -80px; right: -70px; width: 220px; height: 220px; border-radius: 50%; background: var(--r2); opacity: .6; z-index: 0; }
+.deco-circle.small { top: 90px; left: -50px; right: auto; width: 100px; height: 100px; background: var(--f); opacity: .12; }
+.login-header { position: relative; z-index: 2; text-align: center; padding: 30px 20px 26px; }
+.login-header img { height: 84px; width: auto; display: block; margin: 0 auto 18px; }
+.login-frase { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600; font-size: 20px; color: var(--f); line-height: 1.4; margin: 0; }
+.login-card { position: relative; z-index: 1; background: #fff; border-radius: 20px; padding: 28px 24px; margin: 0 16px; box-shadow: 0 8px 28px rgba(26, 0, 16, .08); }
+.login-card h2 { font-size: 15px; font-weight: 700; text-align: center; margin: 0 0 8px; }
+.login-card .lead { font-size: 12.5px; color: var(--g); text-align: center; margin: 0 0 20px; line-height: 1.5; }
+.login-extra { text-align: center; margin-top: 18px; display: grid; gap: 10px; justify-items: center; }
+.login-foot { position: relative; z-index: 1; text-align: center; font-size: 11px; color: var(--g); margin-top: 22px; }
+.login-foot a { color: var(--f); text-decoration: none; font-weight: 700; }
+
+/* Barra inferior flotante (como .bottom/.bn de la App) */
+.bottom {
+  position: fixed; z-index: 30; left: 50%; bottom: 14px; transform: translateX(-50%);
+  width: min(620px, calc(100% - 20px)); height: 68px; border-radius: 25px;
+  background: rgba(255, 255, 255, .95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--b); box-shadow: 0 12px 38px rgba(26, 0, 16, .14);
+  display: flex; justify-content: space-around; padding: 7px;
+  margin-bottom: env(safe-area-inset-bottom);
+}
+.bn { border: 0; background: none; color: #97788b; border-radius: 18px; min-width: 60px; padding: 6px 10px; text-align: center; text-decoration: none; cursor: pointer; }
+.bottom .bn svg { width: 22px; height: 22px; stroke: currentColor; display: block; margin: auto; }
+.bn span { display: block; font-size: 9px; margin-top: 3px; font-weight: 600; }
+.bn.on { color: var(--f); background: var(--p); }
+.bn.soon { opacity: .45; cursor: default; }
+
+.foot { text-align: center; font-size: 11px; color: var(--g); margin-top: 28px; }
+.foot a { color: var(--f); text-decoration: none; font-weight: 700; }

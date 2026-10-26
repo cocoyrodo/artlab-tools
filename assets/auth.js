@@ -13,38 +13,36 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-// Pinta el estado de sesión en la barra superior
-export function renderUserBar(el, session) {
-  if (!el) return;
-  if (!session) { el.innerHTML = ""; return; }
-  el.innerHTML = `<span>${esc(session.user.email)}</span> <button class="btn ghost small" type="button">Salir</button>`;
-  el.querySelector("button").onclick = async () => {
-    await supabase.auth.signOut();
-    location.href = "/";
-  };
-}
-
-// Formulario de ingreso / registro / recuperación. Llama a onReady(session) al entrar.
+// Pantalla de ingreso / registro / recuperación, con el diseño del login de la App ART LAB.
+// Llama a onReady(session) al entrar.
 export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady, initialMode = "login" } = {}) {
   let mode = initialMode;
 
   const draw = (notice = "", kind = "info") => {
     const isLogin = mode === "login", isSignup = mode === "signup", isReset = mode === "reset", isNewPass = mode === "newpass";
     container.innerHTML = `
-      <div class="card stack" style="max-width:420px;margin:24px auto">
-        <h2>${isSignup ? "Crea tu cuenta gratis" : isReset ? "Recupera tu contraseña" : isNewPass ? "Nueva contraseña" : esc(title)}</h2>
-        <p class="muted" style="margin:0">${isSignup ? "Una sola cuenta para todas las herramientas de ART LAB." : isReset ? "Te enviaremos un enlace a tu correo." : isNewPass ? "Escribe tu nueva contraseña." : "Tus datos se guardan en la nube y solo tú puedes verlos."}</p>
-        ${notice ? `<div class="msg ${kind}">${esc(notice)}</div>` : ""}
-        <form class="stack" novalidate>
-          ${isSignup ? `<div><label for="a-nombre">Tu nombre</label><input id="a-nombre" autocomplete="name" required></div>` : ""}
-          ${isNewPass ? "" : `<div><label for="a-email">Correo</label><input id="a-email" type="email" autocomplete="email" inputmode="email" required></div>`}
-          ${isReset ? "" : `<div><label for="a-pass">Contraseña</label><input id="a-pass" type="password" minlength="8" autocomplete="${isLogin ? "current-password" : "new-password"}" required></div>`}
-          <button class="btn block" type="submit">${isSignup ? "Crear cuenta" : isReset ? "Enviar enlace" : isNewPass ? "Guardar contraseña" : "Entrar"}</button>
-        </form>
-        <div class="center stack" style="font-size:.9rem">
-          ${isLogin ? `<button class="linkbtn" data-go="signup">¿No tienes cuenta? Regístrate gratis</button><br><button class="linkbtn" data-go="reset">Olvidé mi contraseña</button>` : ""}
-          ${isSignup || isReset ? `<button class="linkbtn" data-go="login">Ya tengo cuenta, quiero entrar</button>` : ""}
+      <div class="login-page">
+        <div class="deco-circle"></div><div class="deco-circle small"></div>
+        <header class="login-header">
+          <a href="/"><img src="/assets/brand/logo-pink-black.webp" alt="Cocó & Rodo — ART LAB"></a>
+          <p class="login-frase">Herramientas gratis para tu negocio.<br>Organiza, crece y disfruta tu arte.</p>
+        </header>
+        <div class="login-card">
+          <h2>${isSignup ? "Crea tu cuenta gratis" : isReset ? "Recupera tu contraseña" : isNewPass ? "Nueva contraseña" : esc(title)}</h2>
+          <p class="lead">${isSignup ? "Una sola cuenta para todas las herramientas de ART LAB." : isReset ? "Te enviaremos un enlace a tu correo." : isNewPass ? "Escribe tu nueva contraseña." : "Tus datos se guardan en la nube y solo tú puedes verlos."}</p>
+          ${notice ? `<div class="msg ${kind}" style="margin-bottom:16px">${esc(notice)}</div>` : ""}
+          <form class="stack" novalidate>
+            ${isSignup ? `<div class="campo"><label for="a-nombre">Tu nombre</label><input id="a-nombre" autocomplete="name" placeholder="¿Cómo te llamas?" required></div>` : ""}
+            ${isNewPass ? "" : `<div class="campo"><label for="a-email">Correo</label><input id="a-email" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com" required></div>`}
+            ${isReset ? "" : `<div class="campo"><label for="a-pass">Contraseña</label><input id="a-pass" type="password" minlength="8" autocomplete="${isLogin ? "current-password" : "new-password"}" placeholder="${isLogin ? "••••••••" : "Mínimo 8 caracteres"}" required></div>`}
+            <button class="btn block" type="submit">${isSignup ? "Crear cuenta" : isReset ? "Enviar enlace" : isNewPass ? "Guardar contraseña" : "Entrar"}</button>
+          </form>
+          <div class="login-extra">
+            ${isLogin ? `<button class="linkbtn" data-go="signup">Crear cuenta gratis</button><button class="linkbtn soft" data-go="reset">Olvidé mi contraseña</button>` : ""}
+            ${isSignup || isReset ? `<button class="linkbtn" data-go="login">Ya tengo cuenta, quiero entrar</button>` : ""}
+          </div>
         </div>
+        <p class="login-foot">Un regalo de <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>
       </div>`;
 
     container.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => { mode = b.dataset.go; draw(); }));
