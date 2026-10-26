@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, toCSV, calcularComision } from "../finanzas/calc.js";
+import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, toCSV, calcularComision, resultadoAnual } from "../finanzas/calc.js";
 const movs = [
   { tipo:"venta", monto:20000, fecha:"2026-10-05", estado:"pagado", fecha_pago:null, servicio:"Soft gel" },
   { tipo:"venta", monto:15000, fecha:"2026-10-20", estado:"pendiente", fecha_pago:null, servicio:"Soft gel" },
@@ -41,4 +41,17 @@ assert.equal(nov.facturado, 40);       // 35 pagó la clienta + 5 propina
 assert.equal(nov.ganancia, 15);        // 19 − 4, nunca 35 − 4
 assert.equal(oct.facturado, oct.ventas); // sin comisiones, facturado = ventas
 assert.ok(toCSV(com).includes(";35;40"));
+// Resultado mensual y acumulado del año
+const anual = resultadoAnual(movs, "2026-10");
+assert.deepEqual(anual.filas.map((f) => [f.mes, f.ganancia, f.acumulado]), [["2026-09", 10000, 10000], ["2026-10", 24000, 34000]]);
+assert.equal(anual.total.ganancia, 34000);
+assert.equal(anual.total.ventas, 45000);
+assert.equal(anual.total.meses, 2);
+// Hasta septiembre no incluye octubre
+assert.equal(resultadoAnual(movs, "2026-09").total.ganancia, 10000);
+// Meses sin movimientos entre medio cuentan con 0 y el acumulado sigue
+const salto = [{ tipo:"venta", monto:100, fecha:"2026-01-10", estado:"pagado" }, { tipo:"gasto", monto:30, fecha:"2026-03-05", estado:"pagado" }];
+assert.deepEqual(resultadoAnual(salto, "2026-03").filas.map((f) => f.acumulado), [100, 100, 70]);
+// Otro año o sin datos
+assert.equal(resultadoAnual(movs, "2025-12").total, null);
 console.log("OK: todos los cálculos pasan");

@@ -1,6 +1,6 @@
 // Estructura común de ART LAB Tools, igual a la App ART LAB:
 // logo arriba, contenido al centro y barra de navegación flotante abajo.
-import { supabase, esc } from "/assets/auth.js?v=20261026e";
+import { supabase, esc } from "/assets/auth.js?v=20261026f";
 
 export const ICONS = {
   inicio: `<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>`,

@@ -65,6 +65,27 @@ export function porServicio(movs, mes) {
     .sort((a, b) => b.ventas - a.ventas);
 }
 
+// Resultado de cada mes del año y su acumulado, hasta `hastaMes` ("2026-10").
+// Parte desde el primer mes del año con movimientos, para no mostrar meses vacíos
+// antes de que la alumna empezara a usar la herramienta.
+export function resultadoAnual(movs, hastaMes) {
+  const anio = hastaMes.slice(0, 4);
+  const conDatos = movs.map((m) => mesDe(m.fecha)).filter((m) => m.startsWith(anio) && m <= hastaMes).sort();
+  if (!conDatos.length) return { anio, filas: [], total: null };
+  const filas = [];
+  let acumulado = 0;
+  for (let m = conDatos[0]; m <= hastaMes; m = moverMes(m, 1)) {
+    const r = resumenMes(movs, m);
+    acumulado = Math.round((acumulado + r.ganancia) * 100) / 100;
+    filas.push({ mes: m, ventas: r.ventas, costos: r.costos, gastos: r.gastos, ganancia: r.ganancia, acumulado });
+  }
+  const sum = (k) => Math.round(filas.reduce((t, f) => t + f[k], 0) * 100) / 100;
+  const ventas = sum("ventas");
+  const total = { ventas, costos: sum("costos"), gastos: sum("gastos"), ganancia: acumulado,
+    margen: ventas > 0 ? acumulado / ventas : null, meses: filas.length };
+  return { anio, filas, total };
+}
+
 // Parte de la manicurista en una venta por comisión
 export function calcularComision(precioCliente, pct) {
   return Math.round(Number(precioCliente) * Number(pct)) / 100;

@@ -1,6 +1,6 @@
-import { supabase, withSession, esc } from "/assets/auth.js?v=20261026e";
-import { renderShell } from "/assets/shell.js?v=20261026e";
-import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision } from "./calc.js?v=20261026e";
+import { supabase, withSession, esc } from "/assets/auth.js?v=20261026f";
+import { renderShell } from "/assets/shell.js?v=20261026f";
+import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261026f";
 
 const root = document.getElementById("root");
 let app; // contenedor de la vista, dentro de la estructura común
@@ -32,7 +32,13 @@ const hoy = () => {
   const d = new Date();
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 };
-const fmt = (n) => new Intl.NumberFormat("es-CL", { style: "currency", currency: moneda, maximumFractionDigits: moneda === "CLP" ? 0 : 2 }).format(n || 0);
+// Sin decimales cuando el monto es entero (US$7 en vez de US$7,00)
+// Negativos como "−US$5" en vez de "US$-5"
+const fmt = (n) => {
+  const v = Number(n || 0);
+  const t = new Intl.NumberFormat("es-CL", { style: "currency", currency: moneda, minimumFractionDigits: 0, maximumFractionDigits: moneda === "CLP" || Number.isInteger(v) ? 0 : 2 }).format(Math.abs(v));
+  return v < 0 ? "−" + t : t;
+};
 const pctTxt = (n) => `${Number(n).toLocaleString("es-CL", { maximumFractionDigits: 2 })}%`;
 const nombreMes = (m, opts = { month: "long", year: "numeric" }) => {
   const t = new Date(m + "-15T12:00:00").toLocaleDateString("es-CL", opts);
@@ -133,6 +139,9 @@ function render() {
   const maxAbs = Math.max(1, ...meses.map((x) => Math.abs(x.g)));
   const comision = perfil.modalidad === "comision";
   const lblVentas = comision ? "Tus comisiones" : "Ventas";
+  const anual = resultadoAnual(movs, mes);
+  const mesCorto = (m) => nombreMes(m, { month: "short" }).replace(".", "");
+  const rango = anual.filas.length > 1 ? `${mesCorto(anual.filas[0].mes)} – ${mesCorto(mes)}` : mesCorto(mes);
 
   app.innerHTML = `
     <section class="hello">
@@ -152,6 +161,12 @@ function render() {
         <strong class="${r.ganancia < 0 ? "neg" : ""}">${fmt(r.ganancia)}</strong>
         <div class="sub">${comision ? "Comisiones" : "Ventas"} − costos − gastos${r.margen !== null ? ` · margen ${Math.round(r.margen * 100)}%` : ""}</div>
       </div>
+      ${anual.total ? `
+      <div class="card kpi acum">
+        <div><small>Acumulado ${esc(anual.anio)} · ${esc(rango)}</small>
+          <strong class="${anual.total.ganancia < 0 ? "neg" : ""}">${fmt(anual.total.ganancia)}</strong></div>
+        <div class="acum-det"><span>${comision ? "Comisiones" : "Ventas"} ${fmt(anual.total.ventas)}</span><span>Costos y gastos ${fmt(anual.total.costos + anual.total.gastos)}</span></div>
+      </div>` : ""}
       <div class="card kpi"><small>${lblVentas}</small><strong>${fmt(r.ventas)}</strong>
         ${r.facturado > r.ventas ? `<em class="kpi-note">Clientas pagaron ${fmt(r.facturado)}</em>` : ""}</div>
       <div class="card kpi"><small>Costos de material</small><strong>${fmt(r.costos)}</strong>
@@ -192,6 +207,22 @@ function render() {
       <p class="muted" style="font-size:.78rem;margin:8px 0 0">Solo ${comision ? "tu parte" : "ventas"} y materiales del servicio. Los gastos se restan en la ganancia del mes.</p>
     </div>` : ""}
 
+    ${anual.filas.length ? `
+    <div class="fh"><h2>Resultado <em>mensual</em></h2><span class="muted">${esc(anual.anio)}</span></div>
+    <div class="card anual">
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr><th>Mes</th><th>${comision ? "Comisiones" : "Ventas"}</th><th>Resultado</th><th>Acumulado</th></tr></thead>
+          <tbody>${anual.filas.map((f) => `<tr class="${f.mes === mes ? "actual" : ""}" data-mes="${f.mes}">
+            <td>${esc(mesCorto(f.mes))}</td><td>${fmt(f.ventas)}</td>
+            <td class="${f.ganancia < 0 ? "neg" : ""}">${fmt(f.ganancia)}</td><td class="${f.acumulado < 0 ? "neg" : ""}"><b>${fmt(f.acumulado)}</b></td></tr>`).join("")}</tbody>
+          <tfoot><tr><td>Total</td><td>${fmt(anual.total.ventas)}</td>
+            <td colspan="2" class="${anual.total.ganancia < 0 ? "neg" : ""}"><b>${fmt(anual.total.ganancia)}</b>${anual.total.margen !== null ? ` <span>· margen ${Math.round(anual.total.margen * 100)}%</span>` : ""}</td></tr></tfoot>
+        </table>
+      </div>
+      <p class="muted" style="font-size:.78rem;margin:8px 0 0">Resultado = ${comision ? "comisiones" : "ventas"} − costos − gastos de cada mes. El acumulado suma los resultados del año hasta el mes que estás viendo. Toca un mes para verlo.</p>
+    </div>` : ""}
+
     <div class="fh"><h2>Últimos <em>6 meses</em></h2></div>
     <div class="card">
       <div class="chart" role="img" aria-label="Ganancia estimada de los últimos 6 meses">
@@ -228,6 +259,7 @@ function render() {
       <dt>Gasto</dt><dd>Lo que necesitas para trabajar (arriendo, transporte, publicidad, herramientas).</dd>
       <dt>Ganancia estimada</dt><dd>${comision ? "Comisiones" : "Ventas"} − costos − gastos del mes, aunque algo esté pendiente de pago.</dd>
       <dt>Caja del mes</dt><dd>La plata que realmente entró menos la que realmente salió este mes.</dd>
+      <dt>Acumulado</dt><dd>La suma de los resultados de todos los meses del año, hasta el mes que estás viendo. Te dice cuánto llevas ganado en el año.</dd>
     </dl>`;
 
   $("prev").onclick = () => { mes = moverMes(mes, -1); render(); };
@@ -239,6 +271,7 @@ function render() {
   });
   app.querySelectorAll("[data-pay]").forEach((b) => (b.onclick = (e) => { e.stopPropagation(); marcarPagado(b.dataset.pay); }));
   $("export").onclick = exportar;
+  app.querySelectorAll("tr[data-mes]").forEach((tr) => (tr.onclick = () => { mes = tr.dataset.mes; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
   $("cambiar-modo").onclick = () => renderModalidad(false);
   $("moneda").onchange = async (e) => {
     moneda = e.target.value;
