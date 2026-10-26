@@ -1,7 +1,8 @@
-import { supabase, withSession, esc } from "/assets/auth.js?v=20261026h";
-import { renderShell } from "/assets/shell.js?v=20261026h";
-import { t, locale, traducirEstaticos, alTraducir } from "/assets/i18n.js?v=20261026h";
-import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261026h";
+import { supabase, withSession, esc } from "/assets/auth.js?v=20261026i";
+import { renderShell } from "/assets/shell.js?v=20261026i";
+import { t, locale, traducirEstaticos, alTraducir } from "/assets/i18n.js?v=20261026i";
+import { MONEDAS, monedaDelPais } from "/assets/monedas.js?v=20261026i";
+import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261026i";
 
 const root = document.getElementById("root");
 let app; // contenedor de la vista, dentro de la estructura común
@@ -26,7 +27,7 @@ const MODALIDADES = {
   otro: { nombre: "Otro / mixto", detalle: "Combino formas de trabajo, por ejemplo salón y clientas propias." },
 };
 
-let session, movs = [], moneda = "CLP";
+let session, movs = [], moneda = "CLP", monedaManual = false, paisIso = null;
 let perfil = { modalidad: null, comision_pct: null, materiales_salon: false };
 let mes = new Date().toISOString().slice(0, 7);
 let editId = null;
@@ -63,7 +64,7 @@ supabase.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_OUT") location.href
 
 async function cargar() {
   const [{ data: p }, { data, error }] = await Promise.all([
-    supabase.from("profiles").select("moneda, modalidad, comision_pct, materiales_salon").eq("id", session.user.id).maybeSingle(),
+    supabase.from("profiles").select("moneda, moneda_manual, pais_iso, modalidad, comision_pct, materiales_salon").eq("id", session.user.id).maybeSingle(),
     supabase.from("fin_movements").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }).limit(10000),
   ]);
   if (error) {
@@ -71,6 +72,8 @@ async function cargar() {
     return;
   }
   if (p?.moneda) moneda = p.moneda;
+  monedaManual = Boolean(p?.moneda_manual);
+  paisIso = p?.pais_iso ?? null;
   if (p) perfil = { modalidad: p.modalidad, comision_pct: p.comision_pct, materiales_salon: p.materiales_salon };
   movs = data;
   if (!perfil.modalidad || new URLSearchParams(location.search).has("modo")) renderModalidad(!perfil.modalidad);
@@ -253,7 +256,10 @@ function render() {
       <div class="row">
         <div class="campo">
           <label for="moneda">${t("Moneda")}</label>
-          <select id="moneda">${["CLP", "MXN", "COP", "PEN", "ARS", "USD", "EUR"].map((c) => `<option ${c === moneda ? "selected" : ""}>${c}</option>`).join("")}</select>
+          <select id="moneda">
+            <option value="auto" ${monedaManual ? "" : "selected"}>${t("Automática")} · ${monedaDelPais(paisIso)}</option>
+            ${MONEDAS.map((c) => `<option value="${c}" ${monedaManual && c === moneda ? "selected" : ""}>${c}</option>`).join("")}
+          </select>
         </div>
         <div style="display:flex;align-items:flex-end"><button class="btn ghost block" id="export">${t("Descargar Excel (CSV)")}</button></div>
       </div>
@@ -282,9 +288,12 @@ function render() {
   $("export").onclick = exportar;
   app.querySelectorAll("tr[data-mes]").forEach((tr) => (tr.onclick = () => { mes = tr.dataset.mes; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
   $("cambiar-modo").onclick = () => renderModalidad(false);
+  // "Automática" vuelve a la moneda del país; otra opción la deja fija
   $("moneda").onchange = async (e) => {
-    moneda = e.target.value;
-    await supabase.from("profiles").update({ moneda }).eq("id", session.user.id);
+    const v = e.target.value;
+    const cambios = v === "auto" ? { moneda_manual: false } : { moneda: v, moneda_manual: true };
+    const { data } = await supabase.from("profiles").update(cambios).eq("id", session.user.id).select("moneda, moneda_manual").single();
+    if (data) { moneda = data.moneda; monedaManual = data.moneda_manual; }
     render();
   };
 }

@@ -2,7 +2,7 @@
 // data-i18n y las listas que se traducen al mostrarse (categorías, modalidades…).
 import { readFileSync } from "node:fs";
 
-const ARCHIVOS = ["assets/i18n.js", "assets/auth.js", "assets/shell.js", "index.html", "finanzas/app.js", "finanzas/index.html", "perfil/app.js"];
+const ARCHIVOS = ["assets/i18n.js", "assets/monedas.js", "assets/auth.js", "assets/shell.js", "index.html", "finanzas/app.js", "finanzas/index.html", "perfil/app.js"];
 const BLOQUES = [/const CATEGORIAS = \{[\s\S]*?\n\};/, /const MODALIDADES = \{[\s\S]*?\n\};/, /const TITULOS = \{[^}]*\};/, /export const TOOLS = \[[\s\S]*?\n\];/];
 
 export function clavesUsadas(base = new URL("..", import.meta.url)) {

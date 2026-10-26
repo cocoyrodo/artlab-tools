@@ -336,5 +336,8 @@ export const DICT = {
   "No por ahora": ["Not for now", "Pas pour l'instant", "Non per ora", "Agora não", "Nu even niet"],
   "Solo recibirás correos de tu cuenta, como confirmaciones o cambio de contraseña.": ["You'll only get account emails, like confirmations or password changes.", "Vous recevrez seulement les e-mails liés à votre compte, comme les confirmations ou changements de mot de passe.", "Riceverai solo email del tuo account, come conferme o cambio password.", "Você só receberá e-mails da sua conta, como confirmações ou troca de senha.", "Je ontvangt alleen e-mails over je account, zoals bevestigingen of wachtwoordwijzigingen."],
   "Listo. Te avisaremos de las novedades.": ["Done. We'll keep you posted.", "C'est fait. Nous vous tiendrons informée.", "Fatto. Ti terremo aggiornata.", "Pronto. Vamos te avisar das novidades.", "Klaar. We houden je op de hoogte."],
+  "Automática": ["Automatic", "Automatique", "Automatica", "Automática", "Automatisch"],
+  "automática": ["automatic", "automatique", "automatica", "automática", "automatisch"],
+  "Según tu país: {moneda}": ["Based on your country: {moneda}", "Selon votre pays : {moneda}", "In base al tuo paese: {moneda}", "De acordo com seu país: {moneda}", "Op basis van je land: {moneda}"],
   "Listo. Ya no recibirás novedades.": ["Done. You won't receive news anymore.", "C'est fait. Vous ne recevrez plus d'actualités.", "Fatto. Non riceverai più novità.", "Pronto. Você não receberá mais novidades.", "Klaar. Je ontvangt geen nieuws meer."],
 };

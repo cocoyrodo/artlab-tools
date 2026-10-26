@@ -1,9 +1,10 @@
 // Perfil de la alumna, con la misma estructura que el Perfil de la App ART LAB:
 // Cuenta, Preferencias, Soporte y legal, y Cerrar sesión. Cada fila abre su
 // propia pantalla (#datos, #correo, #clave, #idioma, #moneda, #notificaciones).
-import { supabase, withSession, esc, PAISES, paisProbable, errorClave, traducir } from "/assets/auth.js?v=20261026h";
-import { renderShell, iniciales } from "/assets/shell.js?v=20261026h";
-import { t, lang, LANGS, setLang, nombrePais, alTraducir } from "/assets/i18n.js?v=20261026h";
+import { supabase, withSession, esc, PAISES, paisProbable, errorClave, traducir } from "/assets/auth.js?v=20261026i";
+import { renderShell, iniciales } from "/assets/shell.js?v=20261026i";
+import { t, lang, LANGS, setLang, nombrePais, alTraducir } from "/assets/i18n.js?v=20261026i";
+import { MONEDAS, monedaDelPais, nombreMoneda } from "/assets/monedas.js?v=20261026i";
 
 const root = document.getElementById("root");
 let app, session, perfil = {};
@@ -12,7 +13,6 @@ const $ = (id) => document.getElementById(id);
 const AYUDA = "https://wa.me/56977617665?text=" + encodeURIComponent("Hola ART LAB 🩷 necesito ayuda con mi cuenta de ART LAB Tools.");
 const TERMINOS = "https://artcocoyrodo.com/art-lab-terminos-y-condiciones/";
 const PRIVACIDAD = "https://artcocoyrodo.com/privacidad/";
-const MONEDAS = ["CLP", "MXN", "COP", "PEN", "ARS", "USD", "EUR"];
 const MODALIDADES = { independiente: "Independiente", comision: "Por comisión en un salón", arriendo: "Arriendo un espacio o silla", otro: "Otro / mixto" };
 
 const ICO = {
@@ -90,7 +90,7 @@ function vistaPrincipal() {
     <div class="acct-slbl">${t("Preferencias")}</div>
     <div class="acct-card">
       ${fila({ href: "#idioma", ico: "idioma", titulo: t("Idioma"), sub: esc(idioma) })}
-      ${fila({ href: "#moneda", ico: "moneda", titulo: t("Moneda"), sub: esc(perfil.moneda || "CLP") })}
+      ${fila({ href: "#moneda", ico: "moneda", titulo: t("Moneda"), sub: esc(perfil.moneda || "CLP") + (perfil.moneda_manual ? "" : " · " + t("automática")) })}
       ${fila({ href: "#notificaciones", ico: "notif", titulo: t("Notificaciones") })}
     </div>
 
@@ -158,11 +158,12 @@ function vistaDatos() {
       pais_iso: opt?.dataset.iso || null,
       whatsapp: $("p-tel").value.trim() || null,
     };
-    const { error } = await supabase.from("profiles").update(cambios).eq("id", session.user.id);
+    // Si cambia el país, la base de datos ajusta la moneda (salvo que la eligiera a mano)
+    const { data, error } = await supabase.from("profiles").update(cambios).eq("id", session.user.id).select().single();
     if (error) throw falla(t("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo."));
     // El nombre también vive en la cuenta: se usa para el saludo y las iniciales
     await supabase.auth.updateUser({ data: { nombre } });
-    Object.assign(perfil, cambios);
+    Object.assign(perfil, data || cambios);
     return t("Tus datos quedaron guardados.");
   });
 }
@@ -225,13 +226,17 @@ function vistaIdioma() {
   });
 }
 
+// "Automática" usa la moneda del país; elegir otra la deja fija (moneda_manual)
 function vistaMoneda() {
-  const nombres = (c) => { try { return new Intl.DisplayNames([lang], { type: "currency" }).of(c); } catch { return c; } };
-  vistaOpciones(t("Moneda"), MONEDAS.map((c) => [c, c, nombres(c)]), perfil.moneda || "CLP", async (moneda) => {
-    const { error } = await supabase.from("profiles").update({ moneda }).eq("id", session.user.id);
+  const delPais = monedaDelPais(perfil.pais_iso);
+  const opciones = [["auto", t("Automática"), t("Según tu país: {moneda}", { moneda: `${delPais} · ${nombreMoneda(delPais)}` })],
+    ...MONEDAS.map((c) => [c, c, nombreMoneda(c)])];
+  vistaOpciones(t("Moneda"), opciones, perfil.moneda_manual ? perfil.moneda : "auto", async (v) => {
+    const cambios = v === "auto" ? { moneda_manual: false } : { moneda: v, moneda_manual: true };
+    const { data, error } = await supabase.from("profiles").update(cambios).eq("id", session.user.id).select().single();
     if (error) return [t("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo."), "error"];
-    perfil.moneda = moneda;
-    return [t("Listo. Tus montos se mostrarán en {moneda}.", { moneda }), "info"];
+    Object.assign(perfil, data);
+    return [t("Listo. Tus montos se mostrarán en {moneda}.", { moneda: perfil.moneda }), "info"];
   });
 }
 
