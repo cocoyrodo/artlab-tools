@@ -4,6 +4,9 @@
 // - venta: lo que vendiste. Cuenta en el mes de su fecha, cobrada o no.
 // - costo: material/insumo directo. gasto: gasto del negocio.
 // - Un cobro NO es un ingreso nuevo: es una venta que pasa a "pagado".
+// - Venta por comisión: `monto` es solo la parte de la manicurista (su ingreso).
+//   Lo que pagó la clienta (`precio_cliente`) se informa como "facturado",
+//   pero nunca se suma como ingreso propio.
 // - Ganancia estimada del mes = ventas − costos − gastos (por fecha del movimiento).
 // - Caja del mes = lo efectivamente cobrado − lo efectivamente pagado, según la
 //   fecha en que se pagó (fecha_pago, o la fecha del movimiento si se pagó al momento).
@@ -16,7 +19,9 @@ const suma = (arr) => Math.round(arr.reduce((t, m) => t + Number(m.monto), 0) * 
 
 export function resumenMes(movs, mes) {
   const delMes = movs.filter((m) => mesDe(m.fecha) === mes);
-  const ventas = suma(delMes.filter((m) => m.tipo === "venta"));
+  const ventasMes = delMes.filter((m) => m.tipo === "venta");
+  const ventas = suma(ventasMes);
+  const facturado = Math.round(ventasMes.reduce((t, m) => t + Number(m.precio_cliente ?? m.monto), 0) * 100) / 100;
   const costos = suma(delMes.filter((m) => m.tipo === "costo"));
   const gastos = suma(delMes.filter((m) => m.tipo === "gasto"));
 
@@ -25,7 +30,7 @@ export function resumenMes(movs, mes) {
   const pagado = suma(pagadosEnMes.filter((m) => m.tipo !== "venta"));
 
   return {
-    ventas, costos, gastos,
+    ventas, costos, gastos, facturado,
     ganancia: Math.round((ventas - costos - gastos) * 100) / 100,
     margen: ventas > 0 ? (ventas - costos - gastos) / ventas : null,
     cobrado, pagado,
@@ -60,6 +65,11 @@ export function porServicio(movs, mes) {
     .sort((a, b) => b.ventas - a.ventas);
 }
 
+// Parte de la manicurista en una venta por comisión
+export function calcularComision(precioCliente, pct) {
+  return Math.round(Number(precioCliente) * Number(pct)) / 100;
+}
+
 export function ultimosMeses(mes, n) {
   const [y, mo] = mes.split("-").map(Number);
   const out = [];
@@ -82,9 +92,10 @@ const csvCell = (v) => {
 };
 
 export function toCSV(movs) {
-  const head = ["fecha", "tipo", "monto", "descripcion", "categoria", "servicio", "estado", "fecha_pago"];
+  const head = ["fecha", "tipo", "monto", "descripcion", "categoria", "servicio", "estado", "fecha_pago", "pago_clienta", "comision_pct"];
   const rows = [...movs]
     .sort((a, b) => a.fecha.localeCompare(b.fecha))
-    .map((m) => [m.fecha, m.tipo, String(m.monto).replace(".", ","), m.descripcion, m.categoria, m.servicio, m.estado, m.fecha_pago].map(csvCell).join(";"));
+    .map((m) => [m.fecha, m.tipo, String(m.monto).replace(".", ","), m.descripcion, m.categoria, m.servicio, m.estado, m.fecha_pago,
+      m.precio_cliente == null ? "" : String(m.precio_cliente).replace(".", ","), m.comision_pct ?? ""].map(csvCell).join(";"));
   return "﻿" + [head.join(";"), ...rows].join("\r\n");
 }

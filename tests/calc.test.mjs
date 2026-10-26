@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, toCSV } from "../finanzas/calc.js";
+import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, toCSV, calcularComision } from "../finanzas/calc.js";
 const movs = [
   { tipo:"venta", monto:20000, fecha:"2026-10-05", estado:"pagado", fecha_pago:null, servicio:"Soft gel" },
   { tipo:"venta", monto:15000, fecha:"2026-10-20", estado:"pendiente", fecha_pago:null, servicio:"Soft gel" },
@@ -27,4 +27,18 @@ assert.equal(resumenMes(movs,"2026-11").margen, null);
 const csv = toCSV(movs);
 assert.ok(csv.includes("'=HYPERLINK(1)"));
 assert.equal(resumenMes([{tipo:"venta",monto:"0.1",fecha:"2026-10-01",estado:"pagado"},{tipo:"venta",monto:"0.2",fecha:"2026-10-01",estado:"pagado"}],"2026-10").ventas, 0.3);
+// Comisión: solo la parte de la manicurista es ingreso; lo de la clienta es "facturado"
+assert.equal(calcularComision(35, 40), 14);
+assert.equal(calcularComision(33, 45), 14.85);
+const com = [
+  { tipo:"venta", monto:14, precio_cliente:35, comision_pct:40, fecha:"2026-11-03", estado:"pagado" },
+  { tipo:"venta", monto:5, fecha:"2026-11-03", estado:"pagado", categoria:"Propina" },
+  { tipo:"costo", monto:4, fecha:"2026-11-04", estado:"pagado" },
+];
+const nov = resumenMes(com, "2026-11");
+assert.equal(nov.ventas, 19);          // 14 de comisión + 5 de propina
+assert.equal(nov.facturado, 40);       // 35 pagó la clienta + 5 propina
+assert.equal(nov.ganancia, 15);        // 19 − 4, nunca 35 − 4
+assert.equal(oct.facturado, oct.ventas); // sin comisiones, facturado = ventas
+assert.ok(toCSV(com).includes(";35;40"));
 console.log("OK: todos los cálculos pasan");

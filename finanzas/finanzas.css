@@ -75,3 +75,22 @@ dialog h2 { font-size: 22px; font-weight: 800; }
 .seg input:focus-visible + span { outline: 2px solid var(--f); outline-offset: 2px; }
 .hint { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--g); font-size: 15px; margin: 0; }
 .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ¿Cómo trabajas? */
+.modos { display: grid; gap: 10px; }
+.modo { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; padding: 16px; cursor: pointer; border-radius: 18px; transition: border-color .15s, box-shadow .15s; }
+.modo input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--f); }
+.modo b { display: block; font-size: 15px; }
+.modo small { display: block; color: var(--g); font-size: 12.5px; line-height: 1.45; margin-top: 3px; }
+.modo:has(input:checked) { border-color: var(--f); box-shadow: 0 0 0 3px rgba(204, 0, 163, .12), var(--shadow); }
+.modo-actual { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.modo-actual b { display: block; font-size: 15px; margin-top: 4px; }
+.modo-actual small { display: block; color: var(--g); font-size: 12px; margin-top: 2px; }
+
+/* Venta por comisión */
+.com-box { background: var(--p); border: 1px solid var(--b); border-radius: 16px; padding: 12px; }
+.com-box .campo input { background: #fff; }
+.com-result { margin: 10px 2px 0; font-size: 14px; color: var(--t); }
+.com-result b { color: var(--f); font-size: 17px; }
+.com-result span { color: var(--g); font-size: 12px; }
+.kpi-note { display: block; font-style: normal; font-size: 11px; color: var(--g); margin-top: 3px; }

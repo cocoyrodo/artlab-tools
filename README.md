@@ -33,6 +33,11 @@ secretas, la `service_role` key ni contraseñas. Los datos viven solo en Supabas
 - **Costo**: material directo de un servicio. **Gasto**: gasto del negocio.
 - **Ganancia estimada** = ventas − costos − gastos del mes.
 - **Caja del mes** = cobrado − pagado según la fecha real de pago.
+- **Comisión** (manicurista en salón): `monto` es solo su parte; `precio_cliente` y
+  `comision_pct` guardan lo que pagó la clienta y el %. Lo de la clienta se muestra
+  como "Clientas pagaron", nunca como ingreso propio. Las propinas son 100% suyas.
+- La forma de trabajo (`profiles.modalidad`: independiente, comision, arriendo, otro)
+  se pregunta al entrar por primera vez a Finanzas y se cambia en "Tus datos".
 
 Pruebas: `node tests/calc.test.mjs`
 
