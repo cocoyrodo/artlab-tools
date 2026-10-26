@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Control financiero · ART LAB Tools</title>
+  <meta name="description" content="Control financiero gratuito para nail artists: ventas, costos, gastos y ganancias.">
+  <meta name="theme-color" content="#FDF0F7">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="./finanzas.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><b>ART LAB</b><span>Tools</span></a>
+    <div class="user" id="userbar"></div>
+  </header>
+
+  <main class="wrap" id="app">
+    <p class="muted center" style="margin-top:40px">Cargando…</p>
+  </main>
+
+  <dialog id="mov-dialog">
+    <form method="dialog" class="stack" id="mov-form" novalidate>
+      <h2 id="mov-title">Nueva venta</h2>
+      <div class="seg" role="radiogroup" aria-label="Tipo de movimiento">
+        <label><input type="radio" name="tipo" value="venta" checked><span>Venta</span></label>
+        <label><input type="radio" name="tipo" value="costo"><span>Costo</span></label>
+        <label><input type="radio" name="tipo" value="gasto"><span>Gasto</span></label>
+      </div>
+      <p class="muted hint" id="tipo-hint"></p>
+      <div class="row">
+        <div><label for="f-monto">Monto</label><input id="f-monto" type="number" inputmode="decimal" min="0" step="any" required></div>
+        <div><label for="f-fecha">Fecha</label><input id="f-fecha" type="date" required></div>
+      </div>
+      <div><label for="f-desc">Descripción</label><input id="f-desc" maxlength="140" placeholder="Ej: Esmaltado permanente a Carla"></div>
+      <div class="row">
+        <div><label for="f-cat">Categoría</label><select id="f-cat"></select></div>
+        <div id="serv-wrap"><label for="f-serv">Servicio</label><input id="f-serv" list="servicios" maxlength="60" placeholder="Ej: Soft gel"><datalist id="servicios"></datalist></div>
+      </div>
+      <div>
+        <label for="f-estado" id="estado-label">¿Ya te pagaron?</label>
+        <select id="f-estado">
+          <option value="pagado">Sí, ya está pagado</option>
+          <option value="pendiente">No, está pendiente</option>
+        </select>
+      </div>
+      <div class="msg error hidden" id="mov-error"></div>
+      <div class="actions">
+        <button type="button" class="btn ghost" id="mov-delete">Eliminar</button>
+        <span style="flex:1"></span>
+        <button type="button" class="btn ghost" value="cancel" id="mov-cancel">Cancelar</button>
+        <button type="submit" class="btn" id="mov-save">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ART LAB Tools</title>
+  <meta name="description" content="Herramientas digitales gratuitas de ART LAB para nail artists y emprendedoras.">
+  <meta name="theme-color" content="#FDF0F7">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><b>ART LAB</b><span>Tools</span></a>
+    <div class="user" id="userbar"></div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Herramientas gratis para tu negocio</h1>
+      <p>Organiza, administra y haz crecer tu emprendimiento. Una sola cuenta, todas las herramientas, desde tu celular o computador.</p>
+    </section>
+
+    <section class="tools">
+      <a class="card tool" href="/finanzas/">
+        <div class="ico">💗</div>
+        <h3>Control financiero</h3>
+        <p>Registra ventas, costos y gastos. Mira cuánto ganas cada mes.</p>
+      </a>
+      <div class="card tool soon">
+        <div class="ico">🗓️</div>
+        <h3>Organizador <span class="badge">Pronto</span></h3>
+        <p>Agenda, clientas y recordatorios.</p>
+      </div>
+      <div class="card tool soon">
+        <div class="ico">🧮</div>
+        <h3>Calculadora <span class="badge">Pronto</span></h3>
+        <p>Calcula el precio justo de tus servicios.</p>
+      </div>
+      <div class="card tool soon">
+        <div class="ico">📱</div>
+        <h3>Contenido <span class="badge">Pronto</span></h3>
+        <p>Planifica tus publicaciones y Reels.</p>
+      </div>
+    </section>
+
+    <p class="muted center" style="margin-top:32px;font-size:.85rem">Un regalo de <a href="https://artcocoyrodo.com">ART LAB · Coco y Rodo</a></p>
+  </main>
+
+  <script type="module">
+    import { supabase, renderUserBar } from "/assets/auth.js";
+    const { data } = await supabase.auth.getSession();
+    renderUserBar(document.getElementById("userbar"), data.session);
+  </script>
+</body>
+</html>
