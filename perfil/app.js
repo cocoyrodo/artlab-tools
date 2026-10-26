@@ -1,10 +1,11 @@
 // Perfil de la alumna, con la misma estructura que el Perfil de la App ART LAB:
 // Cuenta, Preferencias, Soporte y legal, y Cerrar sesión. Cada fila abre su
 // propia pantalla (#datos, #correo, #clave, #idioma, #moneda, #notificaciones).
-import { supabase, withSession, esc, PAISES, paisProbable, errorClave, traducir } from "/assets/auth.js?v=20261026i";
-import { renderShell, iniciales } from "/assets/shell.js?v=20261026i";
-import { t, lang, LANGS, setLang, nombrePais, alTraducir } from "/assets/i18n.js?v=20261026i";
-import { MONEDAS, monedaDelPais, nombreMoneda } from "/assets/monedas.js?v=20261026i";
+import { supabase, withSession, esc, PAISES, paisProbable, errorClave, traducir } from "/assets/auth.js?v=20261026j";
+import { renderShell, iniciales } from "/assets/shell.js?v=20261026j";
+import { t, lang, LANGS, setLang, nombrePais, alTraducir } from "/assets/i18n.js?v=20261026j";
+import { MONEDAS, monedaDelPais, nombreMoneda } from "/assets/monedas.js?v=20261026j";
+import { cambiarMoneda } from "/assets/conversion.js?v=20261026j";
 
 const root = document.getElementById("root");
 let app, session, perfil = {};
@@ -232,11 +233,12 @@ function vistaMoneda() {
   const opciones = [["auto", t("Automática"), t("Según tu país: {moneda}", { moneda: `${delPais} · ${nombreMoneda(delPais)}` })],
     ...MONEDAS.map((c) => [c, c, nombreMoneda(c)])];
   vistaOpciones(t("Moneda"), opciones, perfil.moneda_manual ? perfil.moneda : "auto", async (v) => {
-    const cambios = v === "auto" ? { moneda_manual: false } : { moneda: v, moneda_manual: true };
-    const { data, error } = await supabase.from("profiles").update(cambios).eq("id", session.user.id).select().single();
-    if (error) return [t("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo."), "error"];
-    Object.assign(perfil, data);
-    return [t("Listo. Tus montos se mostrarán en {moneda}.", { moneda: perfil.moneda }), "info"];
+    // Si la moneda cambia y hay movimientos, pregunta si convertirlos al tipo de cambio
+    const nueva = v === "auto" ? delPais : v;
+    const final = await cambiarMoneda(supabase, { actual: perfil.moneda || "CLP", nueva, manual: v !== "auto" });
+    if (!final) { vistaMoneda(); return null; }
+    Object.assign(perfil, { moneda: final, moneda_manual: v !== "auto" });
+    return [t("Listo. Tus montos se mostrarán en {moneda}.", { moneda: final }), "info"];
   });
 }
 

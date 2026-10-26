@@ -1,8 +1,9 @@
-import { supabase, withSession, esc } from "/assets/auth.js?v=20261026i";
-import { renderShell } from "/assets/shell.js?v=20261026i";
-import { t, locale, traducirEstaticos, alTraducir } from "/assets/i18n.js?v=20261026i";
-import { MONEDAS, monedaDelPais } from "/assets/monedas.js?v=20261026i";
-import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261026i";
+import { supabase, withSession, esc } from "/assets/auth.js?v=20261026j";
+import { renderShell } from "/assets/shell.js?v=20261026j";
+import { t, locale, traducirEstaticos, alTraducir } from "/assets/i18n.js?v=20261026j";
+import { MONEDAS, monedaDelPais } from "/assets/monedas.js?v=20261026j";
+import { cambiarMoneda } from "/assets/conversion.js?v=20261026j";
+import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261026j";
 
 const root = document.getElementById("root");
 let app; // contenedor de la vista, dentro de la estructura común
@@ -291,9 +292,15 @@ function render() {
   // "Automática" vuelve a la moneda del país; otra opción la deja fija
   $("moneda").onchange = async (e) => {
     const v = e.target.value;
-    const cambios = v === "auto" ? { moneda_manual: false } : { moneda: v, moneda_manual: true };
-    const { data } = await supabase.from("profiles").update(cambios).eq("id", session.user.id).select("moneda, moneda_manual").single();
-    if (data) { moneda = data.moneda; monedaManual = data.moneda_manual; }
+    const nueva = v === "auto" ? monedaDelPais(paisIso) : v;
+    // Si cambia y hay movimientos, pregunta si convertirlos al tipo de cambio
+    const final = await cambiarMoneda(supabase, { actual: moneda, nueva, manual: v !== "auto" });
+    if (final) {
+      moneda = final;
+      monedaManual = v !== "auto";
+      const { data } = await supabase.from("fin_movements").select("*").order("fecha", { ascending: false }).order("created_at", { ascending: false }).limit(10000);
+      if (data) movs = data;
+    }
     render();
   };
 }

@@ -202,3 +202,16 @@ h2 em, h1 em { font-family: 'Cormorant Garamond', serif; color: var(--f); font-s
 .acct-opt.on .acct-opt-check { background: var(--f); border-color: var(--f); }
 .acct-opt.on .acct-opt-check::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; }
 .campo input:disabled { opacity: .7; }
+
+/* Cambio de moneda con conversión */
+dialog.conv { width: min(480px, calc(100vw - 24px)); border: 0; border-radius: 24px; padding: 22px; background: #fff; color: var(--t); box-shadow: 0 20px 60px rgba(26, 0, 16, .3); }
+dialog.conv::backdrop { background: rgba(26, 0, 16, .45); }
+dialog.conv h2 { font-size: 22px; font-weight: 800; }
+dialog.conv .modo { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; padding: 14px; cursor: pointer; border-radius: 16px; }
+dialog.conv .modo input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--f); }
+dialog.conv .modo b { display: block; font-size: 14px; }
+dialog.conv .modo small { display: block; color: var(--g); font-size: 12px; margin-top: 2px; }
+dialog.conv .modo:has(input:checked) { border-color: var(--f); box-shadow: 0 0 0 3px rgba(204, 0, 163, .12); }
+.conv-fila { display: flex; align-items: center; gap: 8px; font-weight: 700; white-space: nowrap; }
+.conv-fila input { flex: 1; min-width: 0; }
+.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
