@@ -42,3 +42,13 @@ Pruebas: `node tests/calc.test.mjs`
 2. Importar `withSession` desde `/assets/auth.js`.
 3. Crear sus tablas en una migración nueva, con RLS por `user_id`.
 4. Agregar la carpeta al paso "Armar sitio" del workflow y la tarjeta en `index.html`.
+
+## Reglas de contenido y publicación
+
+- **Nunca usar "gratis", "gratuito" ni "regalo"** en textos, correos o descripciones.
+  Las herramientas son trabajo de valor de ART LAB, independiente de su precio.
+- **Versión de archivos:** cada CSS/JS se carga con `?v=AAAAMMDDx`. Al cambiar
+  cualquier archivo, subir el mismo valor en **todas** las referencias
+  (`index.html`, `finanzas/index.html`, `finanzas/app.js`, `assets/shell.js`,
+  `assets/auth.js`). `auth.js` debe importarse siempre con la misma URL para no
+  crear dos clientes de Supabase.
