@@ -1,6 +1,6 @@
 # ART LAB Tools
 
-Herramientas digitales gratuitas para la comunidad ART LAB — **https://tools.artcocoyrodo.com**
+Herramientas digitales para la comunidad ART LAB — **https://tools.artcocoyrodo.com**
 
 | Ruta | Herramienta | Estado |
 |---|---|---|

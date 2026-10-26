@@ -25,10 +25,10 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
         <div class="deco-circle"></div><div class="deco-circle small"></div>
         <header class="login-header">
           <a href="/"><img src="/assets/brand/logo-pink-black.webp" alt="Cocó & Rodo — ART LAB"></a>
-          <p class="login-frase">Herramientas gratis para tu negocio.<br>Organiza, crece y disfruta tu arte.</p>
+          <p class="login-frase">Herramientas para tu negocio.<br>Organiza, crece y disfruta tu arte.</p>
         </header>
         <div class="login-card">
-          <h2>${isSignup ? "Crea tu cuenta gratis" : isReset ? "Recupera tu contraseña" : isNewPass ? "Nueva contraseña" : esc(title)}</h2>
+          <h2>${isSignup ? "Crea tu cuenta" : isReset ? "Recupera tu contraseña" : isNewPass ? "Nueva contraseña" : esc(title)}</h2>
           <p class="lead">${isSignup ? "Una sola cuenta para todas las herramientas de ART LAB." : isReset ? "Te enviaremos un enlace a tu correo." : isNewPass ? "Escribe tu nueva contraseña." : "Tus datos se guardan en la nube y solo tú puedes verlos."}</p>
           ${notice ? `<div class="msg ${kind}" style="margin-bottom:16px">${esc(notice)}</div>` : ""}
           <form class="stack" novalidate>
@@ -38,11 +38,11 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
             <button class="btn block" type="submit">${isSignup ? "Crear cuenta" : isReset ? "Enviar enlace" : isNewPass ? "Guardar contraseña" : "Entrar"}</button>
           </form>
           <div class="login-extra">
-            ${isLogin ? `<button class="linkbtn" data-go="signup">Crear cuenta gratis</button><button class="linkbtn soft" data-go="reset">Olvidé mi contraseña</button>` : ""}
+            ${isLogin ? `<button class="linkbtn" data-go="signup">Crear cuenta</button><button class="linkbtn soft" data-go="reset">Olvidé mi contraseña</button>` : ""}
             ${isSignup || isReset ? `<button class="linkbtn" data-go="login">Ya tengo cuenta, quiero entrar</button>` : ""}
           </div>
         </div>
-        <p class="login-foot">Un regalo de <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>
+        <p class="login-foot">Creado por <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>
       </div>`;
 
     container.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => { mode = b.dataset.go; draw(); }));
