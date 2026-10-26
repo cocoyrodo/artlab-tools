@@ -155,3 +155,50 @@ h1, h2, h3 { margin: 0; }
 .campo.bad input, .campo.bad select { border-color: #C0264A; background: #FFF5F7; }
 .consent { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 12px; line-height: 1.45; color: var(--g); cursor: pointer; margin: 4px 0 2px; }
 .consent input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--f); }
+
+/* Selector de idioma (igual a .lang-switcher de la App) */
+.top-actions { display: flex; align-items: center; gap: 8px; }
+.lang-switcher { position: relative; display: inline-flex; align-items: center; z-index: 50; }
+.lang-current { appearance: none; border: 1px solid var(--b); background: #fff; color: var(--t); min-width: 56px; height: 40px; padding: 0 10px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; font-weight: 800; font-size: 12px; }
+.lang-arrow { color: var(--f); font-size: 8px; line-height: 1; }
+.lang-menu { display: none; position: absolute; top: calc(100% + 8px); right: 0; width: 170px; margin: 0; padding: 6px; border-radius: 16px; background: #fff; border: 1px solid var(--b); box-shadow: var(--shadow); z-index: 60; }
+.lang-switcher.open .lang-menu { display: block; }
+.lang-menu button { width: 100%; border: 0; background: transparent; display: flex; align-items: center; gap: 10px; padding: 9px 10px; margin: 0; border-radius: 11px; cursor: pointer; color: var(--t); text-align: left; }
+.lang-menu button:hover { background: var(--s); }
+.lang-menu strong { color: var(--f); min-width: 24px; }
+.lang-menu span { font-size: 13px; }
+.login-lang { position: absolute; top: 14px; right: 14px; z-index: 3; }
+.profile.icon { width: 40px; padding: 0; }
+.profile.icon svg { width: 20px; height: 20px; stroke: var(--f); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.profile.icon.on { background: var(--p); }
+h2 em, h1 em { font-family: 'Cormorant Garamond', serif; color: var(--f); font-style: italic; font-weight: 600; }
+
+/* Perfil (igual a .acct-* de la App) */
+.back { width: 42px; height: 42px; border: 1px solid var(--b); border-radius: 14px; background: #fff; color: var(--f); font-size: 20px; cursor: pointer; display: grid; place-items: center; text-decoration: none; flex: none; }
+.acct-head { justify-content: flex-start; margin: 6px 0 18px; }
+.acct-head h2 { font-size: 30px; }
+.acct-hero { display: flex; align-items: center; gap: 14px; padding: 6px 2px 22px; }
+.acct-avatar { width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(145deg, var(--f), var(--m)); color: #fff; display: grid; place-items: center; font-size: 24px; font-weight: 600; flex-shrink: 0; font-family: 'Cormorant Garamond', serif; }
+.acct-hero-body { min-width: 0; }
+.acct-hero-name { font-size: 18px; font-weight: 800; color: var(--t); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acct-hero-email { font-size: 12px; color: var(--g); margin-top: 2px; }
+.acct-slbl { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--f); margin: 22px 2px 8px; }
+.acct-card { background: #fff; border-radius: 18px; border: 1px solid var(--b); overflow: hidden; }
+.acct-row { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-bottom: 1px solid var(--b); cursor: pointer; transition: background .15s; text-decoration: none; color: inherit; background: none; width: 100%; text-align: left; }
+.acct-row:last-child { border-bottom: none; }
+.acct-row:active, .acct-row:hover { background: var(--p); }
+.acct-ico { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0; background: var(--s); color: var(--f); }
+.acct-ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.acct-info { flex: 1; min-width: 0; }
+.acct-t { font-size: 14px; font-weight: 700; color: var(--t); }
+.acct-s { font-size: 11px; color: var(--g); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acct-arr { color: var(--g); font-size: 16px; flex-shrink: 0; }
+.acct-logout { display: block; width: 100%; margin-top: 24px; background: none; border: 0; color: var(--f); font-weight: 800; font-size: 14px; padding: 14px; cursor: pointer; }
+.acct-opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 15px; border: 0; border-bottom: 1px solid var(--b); cursor: pointer; background: none; width: 100%; text-align: left; }
+.acct-opt:last-child { border-bottom: none; }
+.acct-opt b { display: block; font-size: 14px; font-weight: 700; }
+.acct-opt small { display: block; font-size: 11.5px; color: var(--g); margin-top: 2px; line-height: 1.4; }
+.acct-opt-check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid rgba(204, 0, 163, .25); display: grid; place-items: center; flex-shrink: 0; }
+.acct-opt.on .acct-opt-check { background: var(--f); border-color: var(--f); }
+.acct-opt.on .acct-opt-check::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+.campo input:disabled { opacity: .7; }

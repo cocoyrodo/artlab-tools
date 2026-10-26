@@ -13,42 +13,46 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/styles.css?v=20261026f">
+  <link rel="stylesheet" href="/assets/styles.css?v=20261026g">
 </head>
 <body>
   <div id="root"></div>
 
   <script type="module">
-    import { supabase, esc } from "/assets/auth.js?v=20261026f";
-    import { renderShell, ICONS, TOOLS } from "/assets/shell.js?v=20261026f";
+    import { supabase, esc } from "/assets/auth.js?v=20261026g";
+    import { renderShell, ICONS, TOOLS } from "/assets/shell.js?v=20261026g";
+    import { t, aplicarIdiomaCuenta } from "/assets/i18n.js?v=20261026g";
 
     const { data } = await supabase.auth.getSession();
     const session = data.session;
-    const view = renderShell(document.getElementById("root"), { active: "inicio", session });
-    const nombre = session?.user?.user_metadata?.nombre?.split(" ")[0];
+    if (!aplicarIdiomaCuenta(session)) {
+      const view = renderShell(document.getElementById("root"), { active: "inicio", session });
+      const nombre = session?.user?.user_metadata?.nombre?.split(" ")[0];
+      document.title = "ART LAB Tools · Cocó & Rodo";
 
-    view.innerHTML = `
-      <section class="hello">
-        <small>ART LAB Tools</small>
-        <h1>${nombre ? `Hola, <em>${esc(nombre)}</em>` : `Tu negocio, <em>en orden</em>`}</h1>
-        <p class="sub">Organiza, administra y haz crecer tu negocio. Una sola cuenta para todas las herramientas, desde tu celular o computador.</p>
-      </section>
+      view.innerHTML = `
+        <section class="hello">
+          <small>ART LAB Tools</small>
+          <h1>${nombre ? t("Hola, <em>{nombre}</em>", { nombre: esc(nombre) }) : t("Tu negocio, <em>en orden</em>")}</h1>
+          <p class="sub">${t("Organiza, administra y haz crecer tu negocio. Una sola cuenta para todas las herramientas, desde tu celular o computador.")}</p>
+        </section>
 
-      <div class="apps">
-        ${TOOLS.map((t) => t.activa
-          ? `<a class="appb" href="${t.href}"><div class="ico">${ICONS[t.id]}</div><span>${t.nombre}</span><small>${t.detalle}</small></a>`
-          : `<div class="appb soon" aria-disabled="true"><div class="ico">${ICONS[t.id]}<i class="tag soft">Pronto</i></div><span>${t.nombre}</span><small>${t.detalle}</small></div>`
-        ).join("")}
-      </div>
+        <div class="apps">
+          ${TOOLS.map((h) => h.activa
+            ? `<a class="appb" href="${h.href}"><div class="ico">${ICONS[h.id]}</div><span>${t(h.nombre)}</span><small>${t(h.detalle)}</small></a>`
+            : `<div class="appb soon" aria-disabled="true"><div class="ico">${ICONS[h.id]}<i class="tag soft">${t("Pronto")}</i></div><span>${t(h.nombre)}</span><small>${t(h.detalle)}</small></div>`
+          ).join("")}
+        </div>
 
-      <div class="card">
-        <span class="label">Nuevo</span>
-        <h2 style="font-size:22px;margin:6px 0 6px">Control <em style="font-family:'Cormorant Garamond',serif;color:var(--f);font-style:italic;font-weight:600">financiero</em></h2>
-        <p class="muted" style="margin:0 0 14px;font-size:14px;line-height:1.5">Registra tus ventas, costos y gastos, y mira cuánto ganas realmente cada mes.</p>
-        <a class="btn block" href="/finanzas/">${session ? "Abrir Finanzas" : "Comenzar"}</a>
-      </div>
+        <div class="card">
+          <span class="label">${t("Nuevo")}</span>
+          <h2 style="font-size:22px;margin:6px 0 6px">${t("Control <em>financiero</em>")}</h2>
+          <p class="muted" style="margin:0 0 14px;font-size:14px;line-height:1.5">${t("Registra tus ventas, costos y gastos, y mira cuánto ganas realmente cada mes.")}</p>
+          <a class="btn block" href="/finanzas/">${session ? t("Abrir Finanzas") : t("Comenzar")}</a>
+        </div>
 
-      <p class="foot">Creado por <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>`;
+        <p class="foot">${t("Creado por")} <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>`;
+    }
   </script>
 </body>
 </html>

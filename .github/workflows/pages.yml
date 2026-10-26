@@ -27,10 +27,12 @@ jobs:
           node-version: 20
       - name: Probar cálculos financieros
         run: node tests/calc.test.mjs
+      - name: Probar traducciones (6 idiomas)
+        run: node tests/i18n.test.mjs
       - name: Armar sitio (sin supabase/ ni tests/)
         run: |
           mkdir _site
-          cp -r index.html manifest.json CNAME .nojekyll assets finanzas _site/
+          cp -r index.html manifest.json CNAME .nojekyll assets finanzas perfil _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

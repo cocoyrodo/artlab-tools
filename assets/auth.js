@@ -2,7 +2,8 @@
 // Solo usa la clave pública (publishable/anon) de Supabase: la seguridad
 // de los datos la garantiza Row Level Security en la base de datos.
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm";
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SITE_URL } from "/assets/config.js?v=20261026f";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SITE_URL } from "/assets/config.js?v=20261026g";
+import { t, lang, nombrePais, selectorIdioma, activarSelector, aplicarIdiomaCuenta } from "/assets/i18n.js?v=20261026g";
 
 // Se lee antes de crear el cliente, porque el cliente limpia el hash al procesarlo
 const IS_RECOVERY = location.hash.includes("type=recovery");
@@ -14,7 +15,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // Misma lista y prefijos que el registro de la App ART LAB
-const PAISES = [
+export const PAISES = [
   ["AR", "+54", "Argentina"], ["BO", "+591", "Bolivia"], ["BR", "+55", "Brasil"], ["CA", "+1", "Canadá"],
   ["CL", "+56", "Chile"], ["CO", "+57", "Colombia"], ["CR", "+506", "Costa Rica"], ["CU", "+53", "Cuba"],
   ["EC", "+593", "Ecuador"], ["SV", "+503", "El Salvador"], ["ES", "+34", "España"], ["US", "+1", "Estados Unidos"],
@@ -32,7 +33,7 @@ const ZONAS = {
   Managua: "NI", Panama: "PA", Asuncion: "PY", Lima: "PE", Lisbon: "PT", Puerto_Rico: "PR", London: "GB",
   Santo_Domingo: "DO", Zurich: "CH", Montevideo: "UY", Caracas: "VE",
 };
-function paisProbable() {
+export function paisProbable() {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
     return ZONAS[tz.split("/").pop()] || "";
@@ -41,23 +42,25 @@ function paisProbable() {
 
 // Misma política de contraseñas que la App ART LAB
 function errorContrasena(p) {
-  if (p.length < 8 || p.length > 72) return "Usa entre 8 y 72 caracteres, con al menos una mayúscula, una minúscula, un número y un símbolo.";
+  if (p.length < 8 || p.length > 72) return t("Usa entre 8 y 72 caracteres, con al menos una mayúscula, una minúscula, un número y un símbolo.");
   const falta = [];
-  if (!/[a-z]/.test(p)) falta.push("una letra minúscula");
-  if (!/[A-Z]/.test(p)) falta.push("una letra mayúscula");
-  if (!/[0-9]/.test(p)) falta.push("un número");
-  if (!/[^a-zA-Z0-9]/.test(p)) falta.push("un símbolo (por ejemplo, ! o @)");
-  if (falta.length) return "Contraseña débil. Le falta: " + falta.join(", ") + ".";
+  if (!/[a-z]/.test(p)) falta.push(t("una letra minúscula"));
+  if (!/[A-Z]/.test(p)) falta.push(t("una letra mayúscula"));
+  if (!/[0-9]/.test(p)) falta.push(t("un número"));
+  if (!/[^a-zA-Z0-9]/.test(p)) falta.push(t("un símbolo (por ejemplo, ! o @)"));
+  if (falta.length) return t("Contraseña débil. Le falta: {lista}.", { lista: falta.join(", ") });
   const simple = p.toLowerCase().replace(/[^a-z0-9ñ]/g, "");
-  if (/^(?:pass(?:word)?|contrase[nñ]a|qwerty|admin|welcome|bienvenid[ao]|abc)\d{0,6}$/.test(simple)) return "Contraseña débil: es demasiado común y fácil de adivinar.";
+  if (/^(?:pass(?:word)?|contrase[nñ]a|qwerty|admin|welcome|bienvenid[ao]|abc)\d{0,6}$/.test(simple)) return t("Contraseña débil: es demasiado común y fácil de adivinar.");
   return "";
 }
 
-const OJO = `<button type="button" class="pwd-toggle" aria-label="Mostrar contraseña"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>`;
+export const errorClave = errorContrasena;
+
+const OJO = () => `<button type="button" class="pwd-toggle" aria-label="${t("Mostrar contraseña")}"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>`;
 
 // Pantalla de ingreso / registro / recuperación, con el diseño del login de la App ART LAB.
 // Llama a onReady(session) al entrar.
-export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady, initialMode = "login" } = {}) {
+export function renderAuth(container, { title = t("Entra a ART LAB Tools"), onReady, initialMode = "login" } = {}) {
   let mode = initialMode;
 
   const draw = (notice = "", kind = "info") => {
@@ -66,46 +69,49 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
     container.innerHTML = `
       <div class="login-page">
         <div class="deco-circle"></div><div class="deco-circle small"></div>
+        <div class="login-lang">${selectorIdioma()}</div>
         <header class="login-header">
           <a href="/"><img src="/assets/brand/logo-pink-black.webp" alt="Cocó & Rodo — ART LAB"></a>
-          <p class="login-frase">Herramientas para tu negocio.<br>Organiza, crece y disfruta tu arte.</p>
+          <p class="login-frase">${t("Herramientas para tu negocio.")}<br>${t("Organiza, crece y disfruta tu arte.")}</p>
         </header>
         <div class="login-card">
-          <h2>${isSignup ? "Crea tu cuenta" : isReset ? "Recupera tu contraseña" : isNewPass ? "Crea tu nueva contraseña" : esc(title)}</h2>
-          <p class="lead">${isSignup ? "Una sola cuenta para todas las herramientas de ART LAB. Confirma tu correo para activarla." : isReset ? "Te enviaremos un enlace a tu correo." : isNewPass ? "Elige una contraseña nueva para entrar a ART LAB Tools." : "Tus datos se guardan en la nube y solo tú puedes verlos."}</p>
+          <h2>${isSignup ? t("Crea tu cuenta") : isReset ? t("Recupera tu contraseña") : isNewPass ? t("Crea tu nueva contraseña") : esc(title)}</h2>
+          <p class="lead">${isSignup ? t("Una sola cuenta para todas las herramientas de ART LAB. Confirma tu correo para activarla.") : isReset ? t("Te enviaremos un enlace a tu correo.") : isNewPass ? t("Elige una contraseña nueva para entrar a ART LAB Tools.") : t("Tus datos se guardan en la nube y solo tú puedes verlos.")}</p>
           ${notice ? `<div class="msg ${kind}" style="margin-bottom:16px">${esc(notice)}</div>` : ""}
           <form class="stack" novalidate>
             ${isSignup ? `
-            <div class="campo"><label for="a-nombre">Nombre</label><input id="a-nombre" autocomplete="name" placeholder="Tu nombre" maxlength="80" required></div>` : ""}
+            <div class="campo"><label for="a-nombre">${t("Nombre")}</label><input id="a-nombre" autocomplete="name" placeholder="${t("Tu nombre")}" maxlength="80" required></div>` : ""}
             ${isNewPass ? "" : `
-            <div class="campo"><label for="a-email">Correo</label><input id="a-email" type="email" autocomplete="email" autocapitalize="off" inputmode="email" placeholder="tu@correo.com" maxlength="254" required></div>`}
+            <div class="campo"><label for="a-email">${t("Correo")}</label><input id="a-email" type="email" autocomplete="email" autocapitalize="off" inputmode="email" placeholder="${t("tu@correo.com")}" maxlength="254" required></div>`}
             ${isSignup ? `
-            <div class="campo"><label for="a-social">Tu cuenta de Instagram o Facebook</label><input id="a-social" autocapitalize="off" placeholder="@tucuenta" maxlength="80" required></div>
-            <div class="campo"><label for="a-pais">País</label>
+            <div class="campo"><label for="a-social">${t("Tu cuenta de Instagram o Facebook")}</label><input id="a-social" autocapitalize="off" placeholder="${t("@tucuenta")}" maxlength="80" required></div>
+            <div class="campo"><label for="a-pais">${t("País")}</label>
               <select id="a-pais" autocomplete="country-name" required>
-                <option value="" disabled selected>Elige tu país</option>
-                ${PAISES.map(([iso, dial, n]) => `<option value="${n}" data-iso="${iso}" data-dial="${dial}">${n}</option>`).join("")}
-                <option value="Otro país" data-iso="" data-dial="">Otro país</option>
+                <option value="" disabled selected>${t("Elige tu país")}</option>
+                ${PAISES.map(([iso, dial, n]) => [iso, dial, n, nombrePais(iso, n)]).sort((a, b) => a[3].localeCompare(b[3], lang))
+                  .map(([iso, dial, n, visible]) => `<option value="${n}" data-iso="${iso}" data-dial="${dial}">${esc(visible)}</option>`).join("")}
+                <option value="Otro país" data-iso="" data-dial="">${t("Otro país")}</option>
               </select></div>
-            <div class="campo"><label for="a-tel">WhatsApp</label><input id="a-tel" type="tel" autocomplete="tel" placeholder="Elige tu país primero" maxlength="32" required></div>` : ""}
+            <div class="campo"><label for="a-tel">WhatsApp</label><input id="a-tel" type="tel" autocomplete="tel" placeholder="${t("Elige tu país primero")}" maxlength="32" required></div>` : ""}
             ${isReset ? "" : `
-            <div class="campo"><label for="a-pass">${nuevaClave ? "Crea tu contraseña" : "Contraseña"}</label>
-              <div class="pwd-wrap"><input id="a-pass" type="password" autocomplete="${isLogin ? "current-password" : "new-password"}" placeholder="${isLogin ? "••••••••" : "Mínimo 8 caracteres"}" maxlength="72" required>${OJO}</div>
-              ${nuevaClave ? `<small class="help">8 a 72 caracteres: mayúscula, minúscula, número y símbolo.</small>` : ""}
+            <div class="campo"><label for="a-pass">${nuevaClave ? t("Crea tu contraseña") : t("Contraseña")}</label>
+              <div class="pwd-wrap"><input id="a-pass" type="password" autocomplete="${isLogin ? "current-password" : "new-password"}" placeholder="${isLogin ? "••••••••" : t("Mínimo 8 caracteres")}" maxlength="72" required>${OJO()}</div>
+              ${nuevaClave ? `<small class="help">${t("8 a 72 caracteres: mayúscula, minúscula, número y símbolo.")}</small>` : ""}
             </div>`}
             ${isSignup ? `
-            <label class="consent" for="a-consent"><input id="a-consent" type="checkbox"><span>Quiero recibir guías nuevas y novedades de ART LAB por correo o WhatsApp. Puedo darme de baja cuando quiera.</span></label>` : ""}
-            <button class="btn block" type="submit">${isSignup ? "Crear mi cuenta" : isReset ? "Enviar enlace" : isNewPass ? "Guardar contraseña" : "Entrar"}</button>
+            <label class="consent" for="a-consent"><input id="a-consent" type="checkbox"><span>${t("Quiero recibir guías nuevas y novedades de ART LAB por correo o WhatsApp. Puedo darme de baja cuando quiera.")}</span></label>` : ""}
+            <button class="btn block" type="submit">${isSignup ? t("Crear mi cuenta") : isReset ? t("Enviar enlace") : isNewPass ? t("Guardar contraseña") : t("Entrar")}</button>
           </form>
           <div class="login-extra">
-            ${isLogin ? `<button class="linkbtn" data-go="signup">Crear cuenta</button><button class="linkbtn soft" data-go="reset">Olvidé mi contraseña</button>` : ""}
-            ${isSignup ? `<button class="linkbtn" data-go="login">¿Ya tienes cuenta? Entrar</button>` : ""}
-            ${isReset ? `<button class="linkbtn" data-go="login">Volver a entrar</button>` : ""}
+            ${isLogin ? `<button class="linkbtn" data-go="signup">${t("Crear cuenta")}</button><button class="linkbtn soft" data-go="reset">${t("Olvidé mi contraseña")}</button>` : ""}
+            ${isSignup ? `<button class="linkbtn" data-go="login">${t("¿Ya tienes cuenta? Entrar")}</button>` : ""}
+            ${isReset ? `<button class="linkbtn" data-go="login">${t("Volver a entrar")}</button>` : ""}
           </div>
         </div>
-        <p class="login-foot">Creado por <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>
+        <p class="login-foot">${t("Creado por")} <a href="https://artcocoyrodo.com">ART LAB · Cocó &amp; Rodo</a></p>
       </div>`;
 
+    activarSelector(container);
     container.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => { mode = b.dataset.go; draw(); }));
 
     const $ = (id) => container.querySelector("#" + id);
@@ -113,7 +119,7 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
     if (toggle) toggle.onclick = () => {
       const p = $("a-pass"), ver = p.type === "password";
       p.type = ver ? "text" : "password";
-      toggle.setAttribute("aria-label", ver ? "Ocultar contraseña" : "Mostrar contraseña");
+      toggle.setAttribute("aria-label", ver ? t("Ocultar contraseña") : t("Mostrar contraseña"));
       toggle.classList.toggle("on", ver);
     };
 
@@ -124,7 +130,7 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
       const actual = tel.value.trim();
       if (!actual || actual === dial) tel.value = nuevo ? nuevo + " " : "";
       else if (dial && nuevo && actual.startsWith(dial + " ")) tel.value = nuevo + " " + actual.slice(dial.length).trim();
-      tel.placeholder = nuevo ? nuevo + " tu número" : "+código de país y número";
+      tel.placeholder = nuevo ? nuevo + " " + t("tu número") : t("+código de país y número");
       dial = nuevo;
     };
     if (isSignup) {
@@ -141,16 +147,16 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
       const email = $("a-email")?.value.trim().toLowerCase();
       const password = $("a-pass")?.value;
       if (isSignup) {
-        if (!$("a-nombre").value.trim()) return error("Escribe tu nombre.", "a-nombre");
+        if (!$("a-nombre").value.trim()) return error(t("Escribe tu nombre."), "a-nombre");
       }
-      if (!isNewPass && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || "")) return error("Escribe un correo válido.", "a-email");
-      if (!isNewPass && email.endsWith(".con")) return error("El correo termina en «.con». Revisa si debe terminar en «.com».", "a-email");
+      if (!isNewPass && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || "")) return error(t("Escribe un correo válido."), "a-email");
+      if (!isNewPass && email.endsWith(".con")) return error(t("El correo termina en «.con». Revisa si debe terminar en «.com»."), "a-email");
       if (isSignup) {
-        if (!$("a-social").value.trim()) return error("Escribe tu cuenta de Instagram o Facebook.", "a-social");
-        if (!$("a-pais").value) return error("Elige tu país.", "a-pais");
-        if ($("a-tel").value.replace(/\D/g, "").length < 7) return error("Escribe tu número de WhatsApp.", "a-tel");
+        if (!$("a-social").value.trim()) return error(t("Escribe tu cuenta de Instagram o Facebook."), "a-social");
+        if (!$("a-pais").value) return error(t("Elige tu país."), "a-pais");
+        if ($("a-tel").value.replace(/\D/g, "").length < 7) return error(t("Escribe tu número de WhatsApp."), "a-tel");
       }
-      if (isLogin && !password) return error("Escribe tu contraseña.", "a-pass");
+      if (isLogin && !password) return error(t("Escribe tu contraseña."), "a-pass");
       if (isSignup || isNewPass) {
         const problema = errorContrasena(password || "");
         if (problema) return error(problema, "a-pass");
@@ -171,6 +177,7 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
             pais_iso: opt?.dataset.iso || "",
             whatsapp: dial && !tel.startsWith("+") ? dial + " " + tel : tel,
             acepta_novedades: $("a-consent").checked,
+            lang,
           };
           const { data, error: err } = await supabase.auth.signUp({
             email, password,
@@ -178,11 +185,11 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
           });
           if (err) throw err;
           if (data.session) onReady?.(data.session);
-          else { mode = "login"; draw("¡Listo! Revisa tu correo y confirma tu cuenta. Después vuelve aquí para entrar.", "info"); }
+          else { mode = "login"; draw(t("¡Listo! Revisa tu correo y confirma tu cuenta. Después vuelve aquí para entrar."), "info"); }
         } else if (isReset) {
           const { error: err } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: SITE_URL + location.pathname });
           if (err) throw err;
-          mode = "login"; draw("Si el correo está registrado, te llegará un enlace para crear una nueva contraseña.", "info");
+          mode = "login"; draw(t("Si el correo está registrado, te llegará un enlace para crear una nueva contraseña."), "info");
         } else if (isNewPass) {
           const { error: err } = await supabase.auth.updateUser({ password });
           if (err) throw err;
@@ -218,20 +225,21 @@ export function renderAuth(container, { title = "Entra a ART LAB Tools", onReady
   draw();
 }
 
-function traducir(err) {
+export function traducir(err) {
   const m = (err?.message || "").toLowerCase();
-  if (m.includes("invalid login")) return "Correo o contraseña incorrectos.";
-  if (m.includes("not confirmed")) return "Primero confirma tu cuenta con el enlace que te llegó al correo.";
-  if (m.includes("already registered")) return "Ese correo ya tiene cuenta. Entra o recupera tu contraseña.";
-  if (m.includes("rate limit") || m.includes("security purposes")) return "Demasiados intentos. Espera un minuto y vuelve a intentar.";
-  if (err?.code === "weak_password" || /weak|pwned|leaked|compromised/.test(m)) return "Contraseña débil o conocida en filtraciones. Elige otra diferente.";
-  if (m.includes("password")) return "La contraseña no cumple los requisitos: 8 a 72 caracteres, mayúscula, minúscula, número y símbolo.";
-  return "No pudimos completar la acción. Revisa tu conexión e inténtalo de nuevo.";
+  if (m.includes("invalid login")) return t("Correo o contraseña incorrectos.");
+  if (m.includes("not confirmed")) return t("Primero confirma tu cuenta con el enlace que te llegó al correo.");
+  if (m.includes("already registered")) return t("Ese correo ya tiene cuenta. Entra o recupera tu contraseña.");
+  if (m.includes("rate limit") || m.includes("security purposes")) return t("Demasiados intentos. Espera un minuto y vuelve a intentar.");
+  if (err?.code === "weak_password" || /weak|pwned|leaked|compromised/.test(m)) return t("Contraseña débil o conocida en filtraciones. Elige otra diferente.");
+  if (m.includes("password")) return t("La contraseña no cumple los requisitos: 8 a 72 caracteres, mayúscula, minúscula, número y símbolo.");
+  return t("No pudimos completar la acción. Revisa tu conexión e inténtalo de nuevo.");
 }
 
 // Devuelve la sesión activa o muestra el login dentro de `container`.
 export async function withSession(container, onReady, opts) {
   const { data } = await supabase.auth.getSession();
+  if (data.session && aplicarIdiomaCuenta(data.session)) return; // recarga en el idioma de la cuenta
   if (data.session && !IS_RECOVERY) return onReady(data.session);
   renderAuth(container, { ...opts, onReady, initialMode: IS_RECOVERY ? "newpass" : "login" });
 }

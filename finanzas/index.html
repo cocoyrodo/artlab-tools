@@ -13,55 +13,55 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/styles.css?v=20261026f">
-  <link rel="stylesheet" href="./finanzas.css?v=20261026f">
+  <link rel="stylesheet" href="/assets/styles.css?v=20261026g">
+  <link rel="stylesheet" href="./finanzas.css?v=20261026g">
 </head>
 <body>
   <div id="root"></div>
 
   <dialog id="mov-dialog">
     <form method="dialog" class="stack" id="mov-form" novalidate>
-      <h2 id="mov-title">Nueva venta</h2>
-      <div class="seg" role="radiogroup" aria-label="Tipo de movimiento">
-        <label><input type="radio" name="tipo" value="venta" checked><span>Venta</span></label>
-        <label><input type="radio" name="tipo" value="costo"><span>Costo</span></label>
-        <label><input type="radio" name="tipo" value="gasto"><span>Gasto</span></label>
+      <h2 id="mov-title" data-i18n="Nueva venta">Nueva venta</h2>
+      <div class="seg" role="radiogroup" data-i18n-aria="Tipo de movimiento" aria-label="Tipo de movimiento">
+        <label><input type="radio" name="tipo" value="venta" checked><span data-i18n>Venta</span></label>
+        <label><input type="radio" name="tipo" value="costo"><span data-i18n>Costo</span></label>
+        <label><input type="radio" name="tipo" value="gasto"><span data-i18n>Gasto</span></label>
       </div>
       <p class="hint" id="tipo-hint"></p>
-      <label class="consent hidden" id="com-check-wrap" for="f-com"><input id="f-com" type="checkbox"><span>Fue por comisión en un salón</span></label>
+      <label class="consent hidden" id="com-check-wrap" for="f-com"><input id="f-com" type="checkbox"><span data-i18n>Fue por comisión en un salón</span></label>
       <div class="com-box hidden" id="com-box">
         <div class="row">
-          <div class="campo"><label for="f-precio">Lo que pagó la clienta</label><input id="f-precio" type="number" inputmode="decimal" min="0" step="any"></div>
-          <div class="campo"><label for="f-pct">Tu comisión (%)</label><input id="f-pct" type="number" inputmode="decimal" min="1" max="100" step="any"></div>
+          <div class="campo"><label for="f-precio" data-i18n>Lo que pagó la clienta</label><input id="f-precio" type="number" inputmode="decimal" min="0" step="any"></div>
+          <div class="campo"><label for="f-pct" data-i18n>Tu comisión (%)</label><input id="f-pct" type="number" inputmode="decimal" min="1" max="100" step="any"></div>
         </div>
         <p class="com-result" id="com-result"></p>
       </div>
       <div class="row">
-        <div class="campo" id="monto-wrap"><label for="f-monto">Monto</label><input id="f-monto" type="number" inputmode="decimal" min="0" step="any" required></div>
-        <div class="campo"><label for="f-fecha">Fecha</label><input id="f-fecha" type="date" required></div>
+        <div class="campo" id="monto-wrap"><label for="f-monto" data-i18n>Monto</label><input id="f-monto" type="number" inputmode="decimal" min="0" step="any" required></div>
+        <div class="campo"><label for="f-fecha" data-i18n>Fecha</label><input id="f-fecha" type="date" required></div>
       </div>
-      <div class="campo"><label for="f-desc">Descripción</label><input id="f-desc" maxlength="140" placeholder="Ej: Esmaltado permanente a Carla"></div>
+      <div class="campo"><label for="f-desc" data-i18n>Descripción</label><input id="f-desc" maxlength="140" placeholder="Ej: Esmaltado permanente a Carla" data-i18n-ph="Ej: Esmaltado permanente a Carla"></div>
       <div class="row">
-        <div class="campo"><label for="f-cat">Categoría</label><select id="f-cat"></select></div>
-        <div class="campo" id="serv-wrap"><label for="f-serv">Servicio</label><input id="f-serv" list="servicios" maxlength="60" placeholder="Ej: Soft gel"><datalist id="servicios"></datalist></div>
+        <div class="campo"><label for="f-cat" data-i18n>Categoría</label><select id="f-cat"></select></div>
+        <div class="campo" id="serv-wrap"><label for="f-serv" data-i18n>Servicio</label><input id="f-serv" list="servicios" maxlength="60" placeholder="Ej: Soft gel" data-i18n-ph="Ej: Soft gel"><datalist id="servicios"></datalist></div>
       </div>
       <div class="campo">
         <label for="f-estado" id="estado-label">¿Ya te pagaron?</label>
         <select id="f-estado">
-          <option value="pagado">Sí, ya está pagado</option>
-          <option value="pendiente">No, está pendiente</option>
+          <option value="pagado" data-i18n>Sí, ya está pagado</option>
+          <option value="pendiente" data-i18n>No, está pendiente</option>
         </select>
       </div>
       <div class="msg error hidden" id="mov-error"></div>
       <div class="actions">
-        <button type="button" class="btn ghost" id="mov-delete">Eliminar</button>
+        <button type="button" class="btn ghost" id="mov-delete" data-i18n>Eliminar</button>
         <span style="flex:1"></span>
-        <button type="button" class="btn ghost" value="cancel" id="mov-cancel">Cancelar</button>
-        <button type="submit" class="btn" id="mov-save">Guardar</button>
+        <button type="button" class="btn ghost" value="cancel" id="mov-cancel" data-i18n>Cancelar</button>
+        <button type="submit" class="btn" id="mov-save" data-i18n>Guardar</button>
       </div>
     </form>
   </dialog>
 
-  <script type="module" src="./app.js?v=20261026f"></script>
+  <script type="module" src="./app.js?v=20261026g"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 // Estructura común de ART LAB Tools, igual a la App ART LAB:
 // logo arriba, contenido al centro y barra de navegación flotante abajo.
-import { supabase, esc } from "/assets/auth.js?v=20261026f";
+import { supabase } from "/assets/auth.js?v=20261026g";
+import { t, selectorIdioma, activarSelector } from "/assets/i18n.js?v=20261026g";
 
 export const ICONS = {
   inicio: `<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>`,
@@ -18,9 +19,9 @@ export const TOOLS = [
   { id: "contenido", nombre: "Contenido", detalle: "Planifica tus Reels" },
 ];
 
-const iniciales = (session) => {
+export const iniciales = (session) => {
   const n = session?.user?.user_metadata?.nombre || session?.user?.email || "";
-  return n.trim().split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("") || "TÚ";
+  return n.trim().split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("") || "A";
 };
 
 // Pinta la estructura y devuelve el elemento donde va el contenido de la página.
@@ -29,27 +30,25 @@ export function renderShell(root, { active, session }) {
     <div class="aa">
       <div class="top">
         <a class="brand" href="/"><img class="brand-logo" src="/assets/brand/logo-pink-black.webp" alt="Cocó & Rodo — ART LAB"></a>
-        ${session
-          ? `<button type="button" class="profile" id="profileBtn" aria-label="Mi cuenta">${esc(iniciales(session))}</button>`
-          : `<a class="profile" href="/finanzas/">Entrar</a>`}
+        <div class="top-actions">
+          ${selectorIdioma()}
+          ${session
+            ? `<a class="profile icon ${active === "perfil" ? "on" : ""}" href="/perfil/" aria-label="${t("Perfil")}">${ICONS.cuenta}</a>`
+            : `<a class="profile" href="/finanzas/">${t("Entrar")}</a>`}
+        </div>
       </div>
       <main id="view"></main>
     </div>
-    <nav class="bottom" aria-label="Herramientas">
-      <a class="bn ${active === "inicio" ? "on" : ""}" href="/">${ICONS.inicio}<span>Inicio</span></a>
-      <a class="bn ${active === "finanzas" ? "on" : ""}" href="/finanzas/">${ICONS.finanzas}<span>Finanzas</span></a>
-      <span class="bn soon" aria-disabled="true">${ICONS.calculadora}<span>Pronto</span></span>
+    <nav class="bottom" aria-label="${t("Herramientas")}">
+      <a class="bn ${active === "inicio" ? "on" : ""}" href="/">${ICONS.inicio}<span>${t("Inicio")}</span></a>
+      <a class="bn ${active === "finanzas" ? "on" : ""}" href="/finanzas/">${ICONS.finanzas}<span>${t("Finanzas")}</span></a>
+      <span class="bn soon" aria-disabled="true">${ICONS.calculadora}<span>${t("Pronto")}</span></span>
       ${session
-        ? `<button type="button" class="bn" id="logoutBtn">${ICONS.cuenta}<span>Salir</span></button>`
-        : `<a class="bn" href="/finanzas/">${ICONS.cuenta}<span>Entrar</span></a>`}
+        ? `<a class="bn ${active === "perfil" ? "on" : ""}" href="/perfil/">${ICONS.cuenta}<span>${t("Perfil")}</span></a>`
+        : `<a class="bn" href="/finanzas/">${ICONS.cuenta}<span>${t("Entrar")}</span></a>`}
     </nav>`;
 
-  const salir = async () => {
-    if (!confirm("¿Cerrar sesión?")) return;
-    await supabase.auth.signOut();
-    location.href = "/";
-  };
-  root.querySelector("#profileBtn")?.addEventListener("click", salir);
-  root.querySelector("#logoutBtn")?.addEventListener("click", salir);
+  // Con sesión, el idioma elegido también se guarda en la cuenta (como en la App)
+  activarSelector(root, session ? (nuevo) => supabase.auth.updateUser({ data: { lang: nuevo } }).catch(() => {}) : null);
   return root.querySelector("#view");
 }
