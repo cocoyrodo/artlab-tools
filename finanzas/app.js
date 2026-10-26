@@ -1,6 +1,6 @@
-import { supabase, withSession, esc } from "/assets/auth.js?v=20261026c";
-import { renderShell } from "/assets/shell.js?v=20261026c";
-import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV } from "./calc.js?v=20261026c";
+import { supabase, withSession, esc } from "/assets/auth.js?v=20261026d";
+import { renderShell } from "/assets/shell.js?v=20261026d";
+import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV } from "./calc.js?v=20261026d";
 
 const root = document.getElementById("root");
 let app; // contenedor de la vista, dentro de la estructura común
