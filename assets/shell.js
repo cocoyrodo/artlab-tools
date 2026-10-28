@@ -1,9 +1,10 @@
 // Estructura común de ART LAB Tools, igual a la App ART LAB:
 // logo arriba, contenido al centro y barra de navegación flotante abajo.
-import { supabase } from "/assets/auth.js?v=20261028a";
-import { t, selectorIdioma, activarSelector } from "/assets/i18n.js?v=20261028a";
+import { supabase } from "/assets/auth.js?v=20261028b";
+import { t, selectorIdioma, activarSelector } from "/assets/i18n.js?v=20261028b";
 
 export const ICONS = {
+  instagram: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg>`,
   inicio: `<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>`,
   finanzas: `<svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 5-6"/></svg>`,
   organizador: `<svg viewBox="0 0 24 24"><path d="M4 5h16v15H4z"/><path d="M8 3v4M16 3v4M4 9h16"/><path d="M8 13l2 2 5-5"/></svg>`,
@@ -13,6 +14,7 @@ export const ICONS = {
 };
 
 export const TOOLS = [
+  { id: "instagram", nombre: "Instagram", detalle: "Auditoría de tu cuenta", href: "/auditoria/", activa: true },
   { id: "finanzas", nombre: "Finanzas", detalle: "Ventas, gastos y ganancias", href: "/finanzas/", activa: true },
   { id: "calculadora", nombre: "Calculadora", detalle: "Precio de tus servicios" },
   { id: "organizador", nombre: "Organizador", detalle: "Agenda y clientas" },
@@ -41,6 +43,7 @@ export function renderShell(root, { active, session }) {
     </div>
     <nav class="bottom" aria-label="${t("Herramientas")}">
       <a class="bn ${active === "inicio" ? "on" : ""}" href="/">${ICONS.inicio}<span>${t("Inicio")}</span></a>
+      <a class="bn ${active === "auditoria" ? "on" : ""}" href="/auditoria/">${ICONS.instagram}<span>${t("Instagram")}</span></a>
       <a class="bn ${active === "finanzas" ? "on" : ""}" href="/finanzas/">${ICONS.finanzas}<span>${t("Finanzas")}</span></a>
       <a class="bn ${active === "contenido" ? "on" : ""}" href="/contenido/">${ICONS.contenido}<span>${t("Contenido")}</span></a>
       ${session

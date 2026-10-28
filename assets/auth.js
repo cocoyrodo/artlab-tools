@@ -2,8 +2,8 @@
 // Solo usa la clave pública (publishable/anon) de Supabase: la seguridad
 // de los datos la garantiza Row Level Security en la base de datos.
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm";
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SITE_URL } from "/assets/config.js?v=20261028a";
-import { t, lang, nombrePais, selectorIdioma, activarSelector, aplicarIdiomaCuenta, configurarTraductor } from "/assets/i18n.js?v=20261028a";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SITE_URL } from "/assets/config.js?v=20261028b";
+import { t, lang, nombrePais, selectorIdioma, activarSelector, aplicarIdiomaCuenta, configurarTraductor } from "/assets/i18n.js?v=20261028b";
 
 // Se lee antes de crear el cliente, porque el cliente limpia el hash al procesarlo
 const IS_RECOVERY = location.hash.includes("type=recovery");

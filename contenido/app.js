@@ -1,6 +1,6 @@
-import { supabase, withSession, esc } from "/assets/auth.js?v=20261028a";
-import { renderShell } from "/assets/shell.js?v=20261028a";
-import { t, lang, locale, alTraducir } from "/assets/i18n.js?v=20261028a";
+import { supabase, withSession, esc } from "/assets/auth.js?v=20261028b";
+import { renderShell } from "/assets/shell.js?v=20261028b";
+import { t, lang, locale, alTraducir } from "/assets/i18n.js?v=20261028b";
 
 const root = document.getElementById("root");
 let app, session, perfil = null, saldo = null, piezas = [];
@@ -45,6 +45,12 @@ async function cargar() {
   saldo = c ? c.saldo : 20; // la fila se crea con 20 en el primer uso
   piezas = lista || [];
   editando = !perfil;
+  // Viene de la auditoría de Instagram: se precargan su @ y su rubro
+  const q = new URLSearchParams(location.search);
+  if (!perfil && (q.get("ig") || q.get("rubro"))) {
+    perfil = { instagram: q.get("ig") || "", rubro: q.get("rubro") || "" };
+    perfil.nuevo = true;
+  }
   pintar();
 }
 
@@ -59,7 +65,7 @@ function pintar() {
     </section>
     <div class="ct-bar">
       <span class="ct-chip">${t("{n} créditos", { n: saldo ?? "…" })}</span>
-      ${perfil && !editando ? `<button class="linkbtn" id="ct-marca">${t("Editar mi marca")}</button>` : ""}
+      ${perfil && !perfil.nuevo && !editando ? `<button class="linkbtn" id="ct-marca">${t("Editar mi marca")}</button>` : ""}
     </div>
     ${editando ? formMarca() : estudio()}`;
   enlazar();
@@ -83,7 +89,7 @@ function formMarca() {
       <div class="campo"><label for="p-voz">${t("Pega 2 o 3 textos tuyos")}</label><textarea id="p-voz" rows="5" maxlength="4000" placeholder="${t("Captions que ya publicaste. Así la IA aprende cómo escribes.")}">${v("voz")}</textarea></div>
       <div class="msg error ${error ? "" : "hidden"}">${esc(error)}</div>
       <div class="actions">
-        ${perfil ? `<button type="button" class="btn ghost" id="p-cancel">${t("Cancelar")}</button>` : ""}
+        ${perfil && !perfil.nuevo ? `<button type="button" class="btn ghost" id="p-cancel">${t("Cancelar")}</button>` : ""}
         <span style="flex:1"></span>
         <button type="submit" class="btn">${t("Guardar")}</button>
       </div>

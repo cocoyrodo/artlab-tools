@@ -2,9 +2,10 @@
 // data-i18n y las listas que se traducen al mostrarse (categorías, modalidades…).
 import { readFileSync } from "node:fs";
 
-const ARCHIVOS = ["assets/i18n.js", "assets/monedas.js", "assets/conversion.js", "assets/auth.js", "assets/shell.js", "index.html", "finanzas/app.js", "finanzas/index.html", "perfil/app.js", "contenido/app.js"];
+const ARCHIVOS = ["assets/i18n.js", "assets/monedas.js", "assets/conversion.js", "assets/auth.js", "assets/shell.js", "index.html", "finanzas/app.js", "finanzas/index.html", "perfil/app.js", "contenido/app.js", "auditoria/app.js"];
 const BLOQUES = [/const CATEGORIAS = \{[\s\S]*?\n\};/, /const MODALIDADES = \{[\s\S]*?\n\};/, /const TITULOS = \{[^}]*\};/, /export const TOOLS = \[[\s\S]*?\n\];/,
-  /const TONOS = \[[^\]]*\];/, /const TIPOS = \{[^}]*\};/, /const PESTANAS = \{[^}]*\};/, /const PEDIDOS = \{[\s\S]*?\n\};/, /const ERRORES = \{[\s\S]*?\n\};/];
+  /const TONOS = \[[^\]]*\];/, /const TIPOS = \{[^}]*\};/, /const PESTANAS = \{[^}]*\};/, /const PEDIDOS = \{[\s\S]*?\n\};/, /const ERRORES = \{[\s\S]*?\n\};/,
+  /const PASOS = \[[^\]]*\];/, /const PRIORIDADES = \{[^}]*\};/, /const ETIQUETAS = \[[^\]]*\];/, /const INCLUYE = \[[\s\S]*?\n\];/];
 
 export function clavesUsadas(base = new URL("..", import.meta.url)) {
   const claves = new Set();
@@ -24,7 +25,7 @@ export function clavesUsadas(base = new URL("..", import.meta.url)) {
   // Textos que llegan a t() dentro de una expresión
   ["Sin definir"].forEach((k) => claves.add(k));
   // Valores fijos que no son textos visibles (rutas, ids, coordenadas de íconos SVG)
-  ["/finanzas/", "/contenido/", "finanzas", "calculadora", "organizador", "contenido"].forEach((k) => claves.delete(k));
+  ["/finanzas/", "/contenido/", "/auditoria/", "finanzas", "calculadora", "organizador", "contenido"].forEach((k) => claves.delete(k));
   for (const k of [...claves]) if (/^[\d. ]+$|^M[\d.]/.test(k)) claves.delete(k);
   return [...claves].sort((a, b) => a.localeCompare(b, "es"));
 }
