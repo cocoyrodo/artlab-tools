@@ -1,11 +1,11 @@
 // Perfil de la alumna, con la misma estructura que el Perfil de la App ART LAB:
 // Cuenta, Preferencias, Soporte y legal, y Cerrar sesión. Cada fila abre su
 // propia pantalla (#datos, #correo, #clave, #idioma, #moneda, #notificaciones).
-import { supabase, withSession, esc, PAISES, paisProbable, errorClave, traducir } from "/assets/auth.js?v=20261026j";
-import { renderShell, iniciales } from "/assets/shell.js?v=20261026j";
-import { t, lang, LANGS, setLang, nombrePais, alTraducir } from "/assets/i18n.js?v=20261026j";
-import { MONEDAS, monedaDelPais, nombreMoneda } from "/assets/monedas.js?v=20261026j";
-import { cambiarMoneda } from "/assets/conversion.js?v=20261026j";
+import { supabase, withSession, esc, PAISES, paisProbable, errorClave, traducir } from "/assets/auth.js?v=20261028a";
+import { renderShell, iniciales } from "/assets/shell.js?v=20261028a";
+import { t, lang, LANGS, setLang, nombrePais, alTraducir } from "/assets/i18n.js?v=20261028a";
+import { MONEDAS, monedaDelPais, nombreMoneda } from "/assets/monedas.js?v=20261028a";
+import { cambiarMoneda } from "/assets/conversion.js?v=20261028a";
 
 const root = document.getElementById("root");
 let app, session, perfil = {};

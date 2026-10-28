@@ -1,7 +1,7 @@
 // Monedas de ART LAB Tools. La moneda se elige sola según el país (la base de
 // datos la ajusta con public.moneda_por_pais); esta tabla es la misma, para
 // mostrar en pantalla cuál corresponde a "Automática".
-import { lang } from "/assets/i18n.js?v=20261026j";
+import { lang } from "/assets/i18n.js?v=20261028a";
 
 export const MONEDA_POR_PAIS = {
   AR: "ARS", BO: "BOB", BR: "BRL", CA: "CAD", CL: "CLP", CO: "COP", CR: "CRC", CU: "CUP",

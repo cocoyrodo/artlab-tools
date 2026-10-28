@@ -1,7 +1,7 @@
 // Estructura común de ART LAB Tools, igual a la App ART LAB:
 // logo arriba, contenido al centro y barra de navegación flotante abajo.
-import { supabase } from "/assets/auth.js?v=20261026j";
-import { t, selectorIdioma, activarSelector } from "/assets/i18n.js?v=20261026j";
+import { supabase } from "/assets/auth.js?v=20261028a";
+import { t, selectorIdioma, activarSelector } from "/assets/i18n.js?v=20261028a";
 
 export const ICONS = {
   inicio: `<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>`,
@@ -16,7 +16,7 @@ export const TOOLS = [
   { id: "finanzas", nombre: "Finanzas", detalle: "Ventas, gastos y ganancias", href: "/finanzas/", activa: true },
   { id: "calculadora", nombre: "Calculadora", detalle: "Precio de tus servicios" },
   { id: "organizador", nombre: "Organizador", detalle: "Agenda y clientas" },
-  { id: "contenido", nombre: "Contenido", detalle: "Planifica tus Reels" },
+  { id: "contenido", nombre: "Contenido", detalle: "Planifica tus Reels", href: "/contenido/", activa: true },
 ];
 
 export const iniciales = (session) => {
@@ -42,7 +42,7 @@ export function renderShell(root, { active, session }) {
     <nav class="bottom" aria-label="${t("Herramientas")}">
       <a class="bn ${active === "inicio" ? "on" : ""}" href="/">${ICONS.inicio}<span>${t("Inicio")}</span></a>
       <a class="bn ${active === "finanzas" ? "on" : ""}" href="/finanzas/">${ICONS.finanzas}<span>${t("Finanzas")}</span></a>
-      <span class="bn soon" aria-disabled="true">${ICONS.calculadora}<span>${t("Pronto")}</span></span>
+      <a class="bn ${active === "contenido" ? "on" : ""}" href="/contenido/">${ICONS.contenido}<span>${t("Contenido")}</span></a>
       ${session
         ? `<a class="bn ${active === "perfil" ? "on" : ""}" href="/perfil/">${ICONS.cuenta}<span>${t("Perfil")}</span></a>`
         : `<a class="bn" href="/finanzas/">${ICONS.cuenta}<span>${t("Entrar")}</span></a>`}

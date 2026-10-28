@@ -1,0 +1,34 @@
+/* Contenido — sobre el sistema visual común (assets/styles.css) */
+.ct-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 14px; }
+.ct-chip { display: inline-block; padding: 6px 12px; border-radius: 999px; background: var(--s); color: var(--m); font-size: 12px; font-weight: 800; white-space: nowrap; }
+.ct-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: #fff; border: 1px solid var(--b); border-radius: 16px; padding: 5px; margin-bottom: 14px; }
+.ct-tab { border: 0; background: none; border-radius: 12px; padding: 10px 4px; font-size: 13px; font-weight: 700; color: var(--g); cursor: pointer; }
+.ct-tab.on { background: linear-gradient(135deg, var(--f), var(--m)); color: #fff; }
+textarea { width: 100%; resize: vertical; }
+
+.ct-vista-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ct-titulo { font-family: 'Cormorant Garamond', serif; font-size: 26px; line-height: 1.15; margin: 4px 0; }
+.ct-bloque { border-top: 1px solid var(--s); padding: 12px 0; }
+.ct-bloque small { display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--f); }
+.ct-bloque p { margin: 6px 0 0; white-space: pre-line; line-height: 1.5; font-size: 15px; }
+.ct-bloque ul { margin: 6px 0 0; padding-left: 18px; }
+.ct-fuerte { font-weight: 700; font-size: 17px !important; }
+.ct-tags { color: var(--c); font-size: 13px !important; }
+.ct-copy { border: 1px solid var(--b); background: #fff; color: var(--f); border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0; text-transform: none; cursor: pointer; }
+.actions .ct-copy.btn { padding: 0 18px; font-size: 14px; }
+
+.ct-ganchos { margin: 0; padding-left: 22px; }
+.ct-ganchos li { padding: 10px 0; border-bottom: 1px solid var(--s); }
+.ct-ganchos li small { display: block; color: var(--g); margin-top: 4px; }
+.ct-ganchos .ct-copy { margin-left: 6px; }
+
+.ct-dias { list-style: none; margin: 0; padding: 0; }
+.ct-dias li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--s); }
+.ct-dia { flex: 0 0 34px; height: 34px; border-radius: 50%; background: var(--s); color: var(--f); font-weight: 800; display: grid; place-items: center; font-size: 13px; }
+.ct-dias small { display: block; color: var(--g); font-size: 12px; margin-top: 2px; }
+.ct-dias p { margin: 4px 0 0; font-size: 14px; }
+
+.ct-lista { list-style: none; padding: 6px 16px; }
+.ct-lista li { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--s); cursor: pointer; }
+.ct-lista li:last-child { border-bottom: 0; }
+.ct-lista-txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 600; }

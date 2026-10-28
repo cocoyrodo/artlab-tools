@@ -8,7 +8,7 @@
 //   3. Edge Function `translate`: busca en la base de datos translation_cache
 //      y, si el texto es nuevo, lo traduce con Google Cloud Translation y lo
 //      guarda ahí para todas. Mientras llega, se muestra en español.
-import { DICT } from "/assets/i18n-dict.js?v=20261026j";
+import { DICT } from "/assets/i18n-dict.js?v=20261028a";
 
 export const LANGS = [
   ["es", "Español"], ["en", "English"], ["fr", "Français"],

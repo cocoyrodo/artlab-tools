@@ -1,9 +1,9 @@
-import { supabase, withSession, esc } from "/assets/auth.js?v=20261026j";
-import { renderShell } from "/assets/shell.js?v=20261026j";
-import { t, locale, traducirEstaticos, alTraducir } from "/assets/i18n.js?v=20261026j";
-import { MONEDAS, monedaDelPais } from "/assets/monedas.js?v=20261026j";
-import { cambiarMoneda } from "/assets/conversion.js?v=20261026j";
-import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261026j";
+import { supabase, withSession, esc } from "/assets/auth.js?v=20261028a";
+import { renderShell } from "/assets/shell.js?v=20261028a";
+import { t, locale, traducirEstaticos, alTraducir } from "/assets/i18n.js?v=20261028a";
+import { MONEDAS, monedaDelPais } from "/assets/monedas.js?v=20261028a";
+import { cambiarMoneda } from "/assets/conversion.js?v=20261028a";
+import { resumenMes, pendientes, porServicio, ultimosMeses, moverMes, mesDe, toCSV, calcularComision, resultadoAnual } from "./calc.js?v=20261028a";
 
 const root = document.getElementById("root");
 let app; // contenedor de la vista, dentro de la estructura común
