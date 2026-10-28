@@ -1,6 +1,6 @@
-import { supabase, withSession, esc } from "/assets/auth.js?v=20261028b";
-import { renderShell } from "/assets/shell.js?v=20261028b";
-import { t, lang, locale, alTraducir } from "/assets/i18n.js?v=20261028b";
+import { supabase, withSession, esc } from "/assets/auth.js?v=20261028c";
+import { renderShell } from "/assets/shell.js?v=20261028c";
+import { t, lang, locale, alTraducir } from "/assets/i18n.js?v=20261028c";
 
 const root = document.getElementById("root");
 let app, session, perfil = null, saldo = null, piezas = [];

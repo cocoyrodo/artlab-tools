@@ -1,106 +1,84 @@
-/* Auditoría de Instagram — sobre el sistema visual común (assets/styles.css) */
-.au-chip { display: inline-block; padding: 6px 14px; border-radius: 999px; background: var(--s); border: 1px solid var(--r2); color: var(--f); font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
-.au-hero { text-align: center; padding: 18px 0 8px; }
-.au-hero h1 { margin: 16px 0 0; font-size: clamp(30px, 8vw, 44px); line-height: 1.05; font-weight: 800; }
-.au-hero h1 em, .au-res em, .au-venta em, .au-modal em, .au-seccion em { font-family: 'Cormorant Garamond', serif; color: var(--f); font-style: italic; font-weight: 600; }
-.au-sub { color: var(--g); margin: 12px 0 18px; }
-.au-input { display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--b); border-radius: 999px; padding: 6px 6px 6px 18px; box-shadow: var(--shadow); }
-.au-input span { font-weight: 800; color: var(--f); font-size: 18px; }
-.au-input input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 17px; padding: 10px 0; }
-.au-input .btn { border-radius: 999px; white-space: nowrap; padding: 0 16px; }
-.au-lead { color: var(--c); line-height: 1.55; margin: 20px 0 14px; }
-.au-puntos { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 8px; text-align: left; }
-.au-puntos li { background: #fff; border: 1px solid var(--b); border-radius: 16px; padding: 12px 14px; font-size: 14px; }
-.au-puntos li::before { content: "✦ "; color: var(--f); }
-.au-nota { font-size: 12.5px; text-align: center; margin: 12px 0 0; }
+/* Laboratorio de Instagram — sobre el sistema visual común (assets/styles.css) */
+.lab-chip { display: inline-block; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--r2); background: #fff; color: var(--f); font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+.lab-hero { padding: 18px 0 6px; }
+.lab-hero h1 { margin: 14px 0 0; font-size: clamp(32px, 8vw, 46px); line-height: 1.02; font-weight: 800; }
+.lab-hero h1 em, .lab-receta em, .lab-app em, .lab-cargando em { font-family: 'Cormorant Garamond', serif; color: var(--f); font-style: italic; font-weight: 600; }
+.lab-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--g); font-size: 18px; line-height: 1.4; margin: 10px 0 18px; }
+.lab-input { display: flex; align-items: center; gap: 6px; background: #fff; border: 1.5px solid var(--r2); border-radius: 18px; padding: 6px 6px 6px 16px; }
+.lab-input span { font-weight: 800; color: var(--f); font-size: 18px; }
+.lab-input input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 17px; padding: 10px 0; }
+.lab-input .btn { border-radius: 13px; }
+.lab-nota { font-size: 12.5px; margin: 10px 0 0; }
+.lab-pasos-inicio { list-style: none; padding: 0; margin: 22px 0; display: grid; gap: 10px; }
+.lab-pasos-inicio li { display: flex; gap: 14px; align-items: flex-start; background: #fff; border: 1px solid var(--b); border-radius: 18px; padding: 14px; }
+.lab-pasos-inicio b { flex: 0 0 34px; height: 34px; border-radius: 10px; background: var(--s); color: var(--f); display: grid; place-items: center; font-weight: 800; }
+.lab-pasos-inicio strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 20px; }
+.lab-pasos-inicio span { color: var(--g); font-size: 14px; }
+.lab-ultimo { display: block; width: 100%; text-align: left; cursor: pointer; }
+.lab-ultimo strong { display: block; font-size: 17px; margin-top: 4px; }
 
-.au-cargando { text-align: center; padding: 50px 0; }
-.au-spinner { width: 60px; height: 60px; border-radius: 50%; border: 5px solid var(--r2); border-top-color: var(--f); margin: 0 auto 22px; animation: au-giro 1s linear infinite; }
-@keyframes au-giro { to { transform: rotate(360deg); } }
-.au-cargando h2 { font-size: 24px; }
-.au-cargando em { font-family: 'Cormorant Garamond', serif; color: var(--f); }
-.au-pasos { list-style: none; padding: 0; margin: 18px auto; max-width: 300px; text-align: left; }
-.au-pasos li { padding: 7px 0; color: #c3a9b8; transition: color .3s; }
-.au-pasos li.on { color: var(--t); font-weight: 600; }
-.au-pasos li.on::before { content: "✓ "; color: var(--f); }
+.lab-cargando { text-align: center; padding: 46px 0; }
+.lab-tubo { width: 34px; height: 110px; margin: 0 auto 22px; border: 3px solid var(--f); border-top: 0; border-radius: 0 0 18px 18px; position: relative; overflow: hidden; background: #fff; }
+.lab-tubo div { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: linear-gradient(180deg, var(--r2), var(--f)); animation: lab-llenar 4.4s ease-out forwards; }
+@keyframes lab-llenar { to { height: 85%; } }
+.lab-cargando h2 { font-size: 22px; }
+.lab-pasos { list-style: none; padding: 0; margin: 18px auto; max-width: 300px; text-align: left; }
+.lab-pasos li { padding: 7px 0 7px 22px; color: #c3a9b8; position: relative; transition: color .3s; }
+.lab-pasos li::before { content: ""; position: absolute; left: 0; top: 13px; width: 9px; height: 9px; border-radius: 50%; border: 2px solid #e2cbd8; }
+.lab-pasos li.on { color: var(--t); font-weight: 600; }
+.lab-pasos li.on::before { background: var(--f); border-color: var(--f); }
 
-.au-res { padding: 10px 0 90px; }
-.au-avatar { width: 116px; height: 116px; border-radius: 50%; padding: 4px; background: linear-gradient(135deg, var(--f), var(--m)); margin: 4px auto 8px; }
-.au-avatar img, .au-avatar div { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #fff; background: var(--s); display: block; }
-.au-ig { text-align: center; color: var(--f); font-weight: 800; margin: 0; }
-.au-alerta { background: var(--t); color: #fff; border-radius: 999px; padding: 13px 18px; text-align: center; font-weight: 700; margin: 16px 8px; box-shadow: 0 12px 26px rgba(26, 0, 16, .25); }
-.au-titular { font-family: 'Cormorant Garamond', serif; font-size: clamp(30px, 8vw, 40px); line-height: 1.08; text-align: center; margin: 4px 0 0; }
-.au-titular em { font-style: normal !important; font-family: inherit !important; font-weight: 700 !important; }
-.au-diag { text-align: center; color: var(--c); line-height: 1.55; margin: 14px 0; }
+.lab-ficha { background: #fff; border: 1px solid var(--b); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; margin: 10px 0 16px; }
+.lab-ficha-top { display: flex; justify-content: space-between; gap: 8px; padding: 10px 16px; background: var(--s); color: var(--m); font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
+.lab-paciente { display: flex; gap: 14px; align-items: center; padding: 16px 16px 6px; }
+.lab-foto { width: 62px; height: 62px; flex: 0 0 62px; border-radius: 16px; overflow: hidden; background: var(--s); }
+.lab-foto img, .lab-foto div { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lab-paciente strong { display: block; font-size: 18px; }
+.lab-paciente small { display: block; color: var(--g); font-size: 12.5px; }
+.lab-diag { margin: 10px 16px 14px; padding: 12px 14px; border-left: 3px solid var(--f); background: var(--p); border-radius: 0 12px 12px 0; line-height: 1.5; font-size: 15px; }
+.lab-receta .lab-diag { margin: 8px 0 14px; }
+.lab-tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+.lab-tabla th { text-align: left; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--g); padding: 8px 10px; border-bottom: 1px solid var(--s); }
+.lab-tabla th:first-child, .lab-tabla td:first-child { padding-left: 16px; }
+.lab-tabla td { padding: 11px 10px; border-bottom: 1px solid var(--s); vertical-align: top; }
+.lab-tabla td small { display: block; font-size: 11px; font-weight: 700; margin-top: 2px; }
+.lab-valor { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lab-antes, .lab-rango { color: var(--g); }
+.lab-antes { white-space: nowrap; }
+.lab-tabla tr.ok small, .lab-tabla tr.ok .lab-valor { color: var(--ok); }
+.lab-tabla tr.medio small, .lab-tabla tr.medio .lab-valor { color: var(--warn); }
+.lab-tabla tr.bajo small, .lab-tabla tr.bajo .lab-valor { color: #9B1C31; }
+.lab-pie { font-size: 11.5px; color: var(--g); padding: 10px 16px 14px; margin: 0; }
 
-.au-oscura { background: linear-gradient(160deg, var(--t), #3b0a2c); color: #fff; border-radius: 26px; padding: 22px 20px; margin: 16px 0; text-align: center; box-shadow: var(--shadow); }
-.au-oscura p { margin: 0; color: #ead7e3; }
-.au-grande { display: flex; justify-content: center; align-items: baseline; gap: 10px; margin: 8px 0; }
-.au-grande b { font-size: 84px; line-height: 1; color: var(--f); text-shadow: 0 0 28px rgba(204, 0, 163, .5); }
-.au-grande span { font-size: 32px; font-weight: 800; color: var(--r2); }
-.au-cita { border: 1px solid rgba(204, 0, 163, .4); border-radius: 18px; padding: 14px; margin-top: 14px; }
-.au-claro { color: var(--r2) !important; }
-.au-balas { list-style: none; padding: 0; margin: 10px 0 0; text-align: left; }
-.au-balas li { padding: 8px 0 8px 18px; position: relative; color: #ead7e3; }
-.au-balas li::before { content: ""; position: absolute; left: 2px; top: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--f); }
-.au-balas strong { color: #fff; }
-.au-cta { margin-top: 6px; min-height: 54px; font-size: 16px; }
+.lab-receta { margin: 14px 0; }
+.lab-receta h2 { font-size: 26px; margin: 6px 0 10px; }
+.lab-receta h3 { font-size: 15px; margin: 16px 0 6px; }
+.lab-nicho { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--g); font-size: 18px; margin: 6px 0 0; }
+.lab-incluye { list-style: none; padding: 0; margin: 0 0 14px; }
+.lab-incluye li { padding: 9px 0 9px 26px; position: relative; border-top: 1px solid var(--s); }
+.lab-incluye li::before { content: "🔒"; position: absolute; left: 0; font-size: 13px; }
+.lab-entrar { display: block; margin: 10px auto 0; }
+.lab-hallazgos { list-style: none; padding: 0; margin: 0; }
+.lab-hallazgos li { padding: 9px 0; border-top: 1px solid var(--s); }
+.lab-hallazgos p, .lab-plan p { margin: 3px 0 0; color: var(--c); font-size: 14px; line-height: 1.5; }
+.lab-ajustes { margin: 0; padding-left: 20px; line-height: 1.5; }
+.lab-ajustes li { margin-bottom: 8px; }
+.lab-guion { margin: 12px 0; }
+.lab-guion h3 { font-family: 'Cormorant Garamond', serif; font-size: 23px; line-height: 1.15; margin: 10px 0 8px; }
+.lab-guion p { white-space: pre-line; color: var(--c); line-height: 1.55; margin: 0; }
+.lab-cta { border-top: 1px solid var(--s); margin: 12px 0 10px; padding-top: 10px; font-weight: 700; }
+.lab-cta small { display: block; color: var(--f); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; }
+.lab-plan { list-style: none; padding: 0; margin: 8px 0 0; }
+.lab-plan li { padding: 10px 0; border-top: 1px solid var(--s); }
+.lab-plan li div { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.lab-prio { font-size: 10px; font-weight: 800; border-radius: 999px; padding: 3px 8px; background: var(--s); color: var(--m); white-space: nowrap; }
+.lab-prio.alta { background: var(--f); color: #fff; }
 
-.au-puntaje { text-align: center; margin: 16px 0; }
-.au-score { display: flex; justify-content: center; align-items: baseline; gap: 4px; margin-top: 6px; }
-.au-score b { font-size: 64px; line-height: 1; color: var(--f); }
-.au-score span { font-size: 22px; font-weight: 800; color: var(--g); }
-.au-notas { display: grid; grid-template-columns: 1fr 1fr; margin-top: 10px; }
-.au-notas div { padding: 12px 6px; border-top: 1px solid var(--s); }
-.au-notas div:nth-child(odd) { border-right: 1px solid var(--s); }
-.au-notas b { display: block; font-size: 30px; color: var(--f); }
-.au-notas strong { display: block; font-size: 14px; }
-.au-notas small { color: var(--g); font-size: 12px; }
+.lab-app { margin: 26px 0 10px; text-align: center; }
+.lab-app h2 { font-size: 30px; margin: 10px 0 6px; }
+.lab-partes { display: grid; gap: 10px; margin: 16px 0; text-align: left; }
+.lab-partes strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--f); }
+.lab-partes span { color: var(--g); font-size: 14px; }
 
-.au-hallazgos, .au-plan { margin: 8px 0 0; padding-left: 0; list-style: none; }
-.au-hallazgos li, .au-plan li { padding: 10px 0; border-top: 1px solid var(--s); }
-.au-hallazgos p, .au-plan p { margin: 4px 0 0; color: var(--c); font-size: 14px; line-height: 1.5; }
-.au-plan li div { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-.au-prio { font-size: 10px; font-weight: 800; border-radius: 999px; padding: 3px 8px; background: var(--s); color: var(--m); white-space: nowrap; }
-.au-prio.alta { background: var(--f); color: #fff; }
-
-.au-seccion { text-align: center; margin: 28px 0 8px; }
-.au-seccion h2 { font-size: 30px; margin: 8px 0 10px; }
-.au-guion { margin: 12px 0; }
-.au-guion h3 { font-family: 'Cormorant Garamond', serif; font-size: 24px; line-height: 1.15; margin: 12px 0 8px; }
-.au-guion p { white-space: pre-line; color: var(--c); line-height: 1.55; margin: 0; }
-.au-cta-txt { border-top: 1px solid var(--s); margin-top: 12px; padding-top: 10px; font-weight: 700; }
-.au-cta-txt small { display: block; color: var(--f); font-size: 10px; letter-spacing: 1.2px; }
-
-.au-bloqueo { text-align: center; position: relative; overflow: hidden; margin: 12px 0; }
-.au-borroso { filter: blur(6px); opacity: .6; }
-.au-borroso i { display: block; height: 12px; border-radius: 8px; background: var(--r2); margin: 10px 0; }
-.au-candado { width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, var(--f), var(--m)); display: grid; place-items: center; margin: -34px auto 10px; position: relative; font-size: 24px; }
-.au-bloqueo h3 { font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 6px; }
-.au-bloqueo .btn { margin-top: 10px; }
-
-.au-suave { background: var(--s); margin: 16px 0; }
-.au-suave h2 { font-size: 26px; margin: 12px 0 6px; }
-.au-top { list-style: none; counter-reset: n; padding: 0; margin: 10px 0 0; }
-.au-top li { counter-increment: n; display: flex; gap: 12px; margin-bottom: 14px; line-height: 1.5; }
-.au-top li::before { content: counter(n); flex: 0 0 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--f), var(--m)); color: #fff; font-weight: 800; display: grid; place-items: center; }
-
-.au-venta { margin: 22px 0 10px; }
-.au-venta h2 { font-size: 28px; line-height: 1.1; }
-.au-incluye { list-style: none; padding: 0; margin: 14px 0; }
-.au-incluye li { padding: 10px 0 10px 32px; position: relative; border-top: 1px solid var(--s); }
-.au-incluye li::before { content: "✓"; position: absolute; left: 0; top: 10px; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, var(--f), var(--m)); color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
-.au-incluye strong { display: block; }
-.au-incluye span { color: var(--g); font-size: 14px; }
-
-.au-fija { position: fixed; left: 0; right: 0; bottom: 84px; padding: 0 16px; z-index: 4; }
-.au-fija .btn { max-width: 560px; margin: 0 auto; display: flex; min-height: 52px; box-shadow: 0 14px 30px rgba(204, 0, 163, .3); }
-
-.au-modal { position: fixed; inset: 0; background: rgba(26, 0, 16, .45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 20; }
-.au-modal .card { width: 100%; max-width: 420px; text-align: center; position: relative; background: linear-gradient(180deg, #fff, var(--s)); padding: 26px 20px; }
-.au-modal h2 { font-size: 28px; margin: 6px 0; }
-.au-modal p { color: var(--c); margin: 8px 0 16px; }
-.au-sobre { width: 74px; height: 74px; border-radius: 22px; background: linear-gradient(135deg, var(--f), var(--m)); display: grid; place-items: center; font-size: 32px; margin: 0 auto 12px; transform: rotate(-6deg); }
-.au-cerrar { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 50%; border: 0; background: #fff; box-shadow: var(--shadow-soft); cursor: pointer; }
-.au-modal .au-input { padding-left: 16px; }
-.au-modal .consent { text-align: left; margin-top: 12px; font-size: 13px; }
+.lab-capa { position: fixed; inset: 0; z-index: 50; overflow-y: auto; background: var(--p); }
+.lab-cerrar { position: fixed; top: 14px; right: 14px; z-index: 51; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--b); background: #fff; cursor: pointer; }

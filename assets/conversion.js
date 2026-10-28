@@ -2,7 +2,7 @@
 // Si la alumna ya tiene movimientos, se le pregunta si quiere convertirlos al
 // tipo de cambio de hoy (editable) o solo cambiar la moneda. La conversión la
 // hace public.convertir_moneda en la base de datos, en una sola transacción.
-import { t, locale } from "/assets/i18n.js?v=20261028b";
+import { t, locale } from "/assets/i18n.js?v=20261028c";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const decimales = (m) => (["CLP", "PYG", "COP", "CRC"].includes(m) ? 0 : 2);

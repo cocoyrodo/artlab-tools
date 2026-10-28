@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 const ARCHIVOS = ["assets/i18n.js", "assets/monedas.js", "assets/conversion.js", "assets/auth.js", "assets/shell.js", "index.html", "finanzas/app.js", "finanzas/index.html", "perfil/app.js", "contenido/app.js", "auditoria/app.js"];
 const BLOQUES = [/const CATEGORIAS = \{[\s\S]*?\n\};/, /const MODALIDADES = \{[\s\S]*?\n\};/, /const TITULOS = \{[^}]*\};/, /export const TOOLS = \[[\s\S]*?\n\];/,
   /const TONOS = \[[^\]]*\];/, /const TIPOS = \{[^}]*\};/, /const PESTANAS = \{[^}]*\};/, /const PEDIDOS = \{[\s\S]*?\n\};/, /const ERRORES = \{[\s\S]*?\n\};/,
-  /const PASOS = \[[^\]]*\];/, /const PRIORIDADES = \{[^}]*\};/, /const ETIQUETAS = \[[^\]]*\];/, /const INCLUYE = \[[\s\S]*?\n\];/];
+  /const PASOS = \[[^\]]*\];/, /const PRIORIDADES = \{[^}]*\};/, /const ESTADOS = \{[^}]*\};/];
 
 export function clavesUsadas(base = new URL("..", import.meta.url)) {
   const claves = new Set();

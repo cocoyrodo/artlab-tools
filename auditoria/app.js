@@ -1,43 +1,58 @@
-import { supabase, esc } from "/assets/auth.js?v=20261028b";
-import { renderShell } from "/assets/shell.js?v=20261028b";
-import { t, lang, locale, alTraducir } from "/assets/i18n.js?v=20261028b";
-import { AUDITORIA_URL } from "/assets/config.js?v=20261028b";
+import { supabase, esc, renderAuth } from "/assets/auth.js?v=20261028c";
+import { renderShell } from "/assets/shell.js?v=20261028c";
+import { t, lang, locale, alTraducir } from "/assets/i18n.js?v=20261028c";
+import { AUDITORIA_URL } from "/assets/config.js?v=20261028c";
 
-// Auditoría pública de Instagram (sin cuenta). La lectura del perfil la hace la
-// Edge Function artlab-ig-audit del proyecto ART LAB, que tiene la conexión con Meta.
-// Flujo: @ → análisis → gancho → correo → auditoría completa → la app.
+// Laboratorio de Instagram. Sin cuenta: muestra → análisis → resultados con valores de
+// referencia. Con cuenta: la receta (ajustes, guiones y plan) y la evolución mes a mes.
+// La lectura de Instagram y la receta las hace la Edge Function artlab-ig-audit (proyecto ART LAB).
+// Mientras la persona confirma su correo, el análisis queda en este dispositivo (PENDIENTE).
 
 const root = document.getElementById("root");
 const qs = new URLSearchParams(location.search);
 const utm = {};
 ["utm_source", "utm_medium", "utm_campaign", "utm_content", "ref"].forEach((k) => { if (qs.get(k)) utm[k] = qs.get(k).slice(0, 80); });
+const PENDIENTE = "artlab_tools_laboratorio";
 
-let vista = "inicio", handle = qs.get("u") || "", auditId = "", teaser = null, informe = null, error = "", puerta = false, enviando = false;
-const PASOS = ["Leyendo tu perfil", "Revisando tus últimos 12 posts", "Buscando llamados a la acción", "Midiendo formato y constancia", "Preparando tus sugerencias"];
+let session = (await supabase.auth.getSession()).data.session;
+let vista = "inicio", handle = (qs.get("u") || "").replace(/^@/, ""), error = "", ocupado = false;
+let muestra = null; // { audit_id, teaser, metrics, fecha }
+let receta = null, previo = null, ultimo = null;
+
+const PASOS = ["Muestra recibida", "Leyendo tus últimos 12 posts", "Midiendo 6 indicadores", "Comparando con valores de referencia", "Resultados listos"];
 const ERRORES = {
-  invalid_handle: "Revisa el usuario: solo letras, números, puntos y guiones bajos.",
-  not_professional: "No pudimos leer esa cuenta. Funciona con cuentas profesionales (empresa o creadora): cámbiala en Instagram → Configuración → Tipo de cuenta. Revisa también que el usuario esté bien escrito.",
-  rate_limited: "Hiciste varias auditorías seguidas. Espera un rato y vuelve a intentarlo.",
-  busy: "Hay muchas auditorías en curso. Intenta de nuevo en unos minutos.",
-  invalid_email: "Revisa tu correo.",
-  consent_required: "Para mostrarte tu auditoría necesitamos que aceptes la política de privacidad.",
-  audit_expired: "Esta auditoría venció. Vuelve a empezar.",
-  audit_failed: "No pudimos completar la auditoría. Intenta de nuevo en unos minutos.",
+  invalid_handle: "Ese usuario no es válido: usa solo letras, números, puntos y guiones bajos.",
+  not_professional: "No pudimos tomar la muestra. El laboratorio funciona con cuentas profesionales (empresa o creadora); puedes cambiarla en Instagram → Configuración → Tipo de cuenta. Revisa también que el usuario esté bien escrito.",
+  rate_limited: "Hiciste varios análisis seguidos. Vuelve a intentarlo en un rato.",
+  busy: "El laboratorio está con mucha demanda. Inténtalo en unos minutos.",
+  audit_expired: "Esta muestra ya no está disponible. Haz un análisis nuevo.",
+  unauthorized: "Tu sesión terminó. Entra de nuevo para ver tu receta.",
+  audit_failed: "No pudimos terminar el análisis. Inténtalo en unos minutos.",
 };
+const ESTADOS = { ok: "En rango", medio: "Mejorable", bajo: "Fuera de rango" };
 const PRIORIDADES = { alta: "Prioridad alta", media: "Prioridad media", baja: "Prioridad baja" };
-const ETIQUETAS = ["Perfil", "Frecuencia", "Conversión", "Formato"]; // notas que llegan del servidor en español
-const INCLUYE = [
-  ["Radiografía de tu Instagram", "Tu auditoría cada mes, para ver qué mejoró y qué sigue frenando tus ventas."],
-  ["Guiones listos para grabar", "Pones tu idea y recibes el guion completo escrito en tu voz: gancho, desarrollo y cierre."],
-  ["Ganchos que detienen el scroll", "10 ganchos por tema, adaptados a tu negocio, para que nadie pase de largo."],
-  ["Calendario de 30 días", "Qué publicar cada día, alternando contenido que atrae, que da confianza y que vende."],
-  ["Control financiero", "Registra ventas, costos y gastos, y mira cuánto ganas realmente cada mes."],
-];
 
-const { data } = await supabase.auth.getSession();
-const app = renderShell(root, { active: "auditoria", session: data.session });
+const app = renderShell(root, { active: "auditoria", session });
 alTraducir(() => pintar());
-pintar();
+
+async function iniciar() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PENDIENTE) || "null");
+    if (p && Date.now() - Date.parse(p.fecha) < 6 * 24 * 3600000) { muestra = p; handle = p.teaser.username; vista = "resultados"; }
+  } catch { /* sin almacenamiento */ }
+  if (session) {
+    const { data } = await supabase.from("instagram_analisis").select("*").order("created_at", { ascending: false }).limit(20);
+    const lista = data || [];
+    ultimo = lista[0] || null;
+    if (muestra) {
+      previo = lista.find((a) => a.handle === muestra.teaser.username && a.audit_id !== muestra.audit_id) || null;
+      const guardado = lista.find((a) => a.audit_id === muestra.audit_id);
+      if (guardado?.receta) receta = guardado.receta;
+    }
+  }
+  pintar();
+  if (session && muestra && !receta) pedirReceta();
+}
 
 async function llamar(payload) {
   const res = await fetch(AUDITORIA_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -46,189 +61,192 @@ async function llamar(payload) {
   return body;
 }
 
-const fmt = (n) => new Intl.NumberFormat(locale(), { notation: "compact", maximumFractionDigits: 1 }).format(Number(n || 0));
+const num = (n) => new Intl.NumberFormat(locale(), { notation: "compact", maximumFractionDigits: 1 }).format(Number(n || 0));
+const fecha = (f) => new Date(f).toLocaleDateString(locale(), { day: "numeric", month: "long", year: "numeric" });
+
+// Los 6 indicadores y sus valores de referencia (criterio ART LAB)
+function indicadores(m) {
+  const conCta = m.sample - m.without_cta, r = m.sample ? conCta / m.sample : 0;
+  const nivel = (v, ok, medio) => (v >= ok ? "ok" : v >= medio ? "medio" : "bajo");
+  return [
+    { k: "cta", nombre: t("Posts que piden una acción"), valor: t("{n} de {total}", { n: conCta, total: m.sample }), rango: t("2 de cada 3 o más"), estado: nivel(r, 2 / 3, 1 / 3), v: conCta },
+    { k: "frecuencia", nombre: t("Publicaciones en 30 días"), valor: String(m.posts_30d), rango: t("12 o más"), estado: nivel(m.posts_30d, 12, 6), v: m.posts_30d },
+    { k: "reels", nombre: t("Reels y videos"), valor: `${m.video_pct} %`, rango: t("60 % o más"), estado: nivel(m.video_pct, 60, 30), v: m.video_pct },
+    { k: "interaccion", nombre: t("Interacción por post"), valor: `${m.engagement_pct} %`, rango: t("2 % o más"), estado: nivel(m.engagement_pct, 2, 1), v: m.engagement_pct },
+    { k: "bio", nombre: t("Bio que dice cómo comprarte"), valor: m.bio_has_cta ? t("Sí") : t("No"), rango: t("Sí"), estado: m.bio_has_cta ? "ok" : "bajo", v: m.bio_has_cta ? 1 : 0 },
+    { k: "enlace", nombre: t("Enlace en la bio"), valor: m.has_website ? t("Sí") : t("No"), rango: t("Sí"), estado: m.has_website ? "ok" : "bajo", v: m.has_website ? 1 : 0 },
+  ];
+}
 
 function pintar() {
   if (vista === "inicio") app.innerHTML = inicio();
   else if (vista === "cargando") app.innerHTML = cargando();
-  else app.innerHTML = resultado() + (puerta ? modal() : "");
+  else app.innerHTML = informe();
   enlazar();
 }
 
 function inicio() {
   return `
-    <section class="au-hero">
-      <span class="au-chip">${t("Auditoría de Instagram con IA")}</span>
-      <h1>${t("Tu contenido está perdiendo <em>clientas</em>.")}<br>${t("Descubre exactamente qué cambiar.")}</h1>
-      <p class="au-sub">${t("Toma menos de 60 segundos.")}</p>
-      <form class="au-input" id="au-form" autocomplete="off">
+    <section class="lab-hero">
+      <span class="lab-chip">${t("Laboratorio de Instagram")}</span>
+      <h1>${t("Haz el análisis de laboratorio de tu <em>Instagram</em>")}</h1>
+      <p class="lab-sub">${t("Leemos tus últimos 12 posts y comparamos tu cuenta con valores de referencia: verás qué está sano y qué está frenando tus ventas.")}</p>
+      <form class="lab-input" id="lab-form" autocomplete="off">
         <span>@</span>
-        <input id="au-handle" inputmode="text" autocapitalize="none" spellcheck="false" maxlength="31" placeholder="${t("tu_usuario")}" value="${esc(handle)}" aria-label="${t("Tu usuario de Instagram")}">
-        <button class="btn" type="submit">${t("Analizar mi Instagram")} →</button>
+        <input id="lab-handle" inputmode="text" autocapitalize="none" spellcheck="false" maxlength="31" placeholder="${t("tu_usuario")}" value="${esc(handle)}" aria-label="${t("Tu usuario de Instagram")}">
+        <button class="btn" type="submit">${t("Analizar")}</button>
       </form>
       <div class="msg error ${error ? "" : "hidden"}">${esc(error)}</div>
-      <p class="au-lead">${t("Analizamos tu Instagram, encontramos dónde estás perdiendo atención, confianza y ventas, y te decimos qué contenido crear para vender más.")}</p>
-      <ul class="au-puntos">
-        <li>${t("Tu puntaje de 0 a 100, con lo que te frena")}</li>
-        <li>${t("Las 3 cosas que deberías cambiar primero")}</li>
-        <li>${t("2 guiones de Reel listos para grabar, para tu negocio")}</li>
-        <li>${t("Tu plan de acción para los próximos 30 días")}</li>
-      </ul>
-      <p class="muted au-nota">${t("Funciona con cuentas profesionales (empresa o creadora). No pedimos tu contraseña.")}</p>
-    </section>`;
+      <p class="muted lab-nota">${t("Funciona con cuentas profesionales (empresa o creadora). No pedimos tu contraseña.")}</p>
+    </section>
+    <ol class="lab-pasos-inicio">
+      <li><b>1</b><div><strong>${t("La muestra")}</strong><span>${t("Tu usuario de Instagram. Nada más.")}</span></div></li>
+      <li><b>2</b><div><strong>${t("El análisis")}</strong><span>${t("6 indicadores de tu cuenta, cada uno con su rango sano.")}</span></div></li>
+      <li><b>3</b><div><strong>${t("La receta")}</strong><span>${t("Ajustes, guiones y un plan de 30 días para tu negocio.")}</span></div></li>
+    </ol>
+    ${session && ultimo ? `<button class="card lab-ultimo" id="lab-ultimo"><span class="label">${t("Tu último análisis")}</span><strong>@${esc(ultimo.handle)}</strong><small class="muted">${fecha(ultimo.created_at)}</small></button>` : ""}`;
 }
 
 function cargando() {
   return `
-    <section class="au-cargando" aria-live="polite">
-      <div class="au-spinner"></div>
-      <h2>${t("Analizando")} <em>@${esc(handle)}</em></h2>
-      <ul class="au-pasos" id="au-pasos">${PASOS.map((p) => `<li>${t(p)}</li>`).join("")}</ul>
+    <section class="lab-cargando" aria-live="polite">
+      <div class="lab-tubo"><div></div></div>
+      <h2>${t("Analizando la muestra de {u}", { u: `<em>@${esc(handle)}</em>` })}</h2>
+      <ul class="lab-pasos" id="lab-pasos">${PASOS.map((p) => `<li>${t(p)}</li>`).join("")}</ul>
     </section>`;
 }
 
-function cabecera() {
-  const foto = teaser.profile_picture_url
-    ? `<img src="${esc(teaser.profile_picture_url)}" alt="" referrerpolicy="no-referrer">`
-    : `<div></div>`;
+function informe() {
+  const tz = muestra.teaser, m = muestra.metrics, ind = indicadores(m);
+  const fuera = ind.filter((i) => i.estado !== "ok");
+  const peor = ind.find((i) => i.estado === "bajo") || fuera[0];
+  const antes = previo ? indicadores(previo.resultados) : null;
+  const foto = tz.profile_picture_url ? `<img src="${esc(tz.profile_picture_url)}" alt="" referrerpolicy="no-referrer">` : "<div></div>";
   return `
-    <div class="au-avatar">${foto}</div>
-    <p class="au-ig">@${esc(teaser.username)}</p>
-    <div class="au-alerta">⚠️ ${t("¡Cuidado, {u}!", { u: "@" + esc(teaser.username) })}</div>
-    <h1 class="au-titular">${esc(teaser.headline.lead)}<em>${esc(teaser.headline.highlight)}</em>${esc(teaser.headline.tail)}</h1>`;
+    <article class="lab-ficha">
+      <header class="lab-ficha-top">
+        <span>${t("Informe de laboratorio")}</span>
+        <span>${t("Muestra N° {n}", { n: muestra.audit_id.slice(0, 6).toUpperCase() })}</span>
+      </header>
+      <div class="lab-paciente">
+        <div class="lab-foto">${foto}</div>
+        <div>
+          <strong>@${esc(tz.username)}</strong>
+          <small>${t("{n} seguidores", { n: num(tz.followers) })} · ${t("{n} posts analizados", { n: m.sample })}</small>
+          <small>${fecha(muestra.fecha)}</small>
+        </div>
+      </div>
+      <p class="lab-diag">${fuera.length
+        ? t("{n} de 6 indicadores fuera de lo sano. El más urgente: {i}.", { n: fuera.length, i: `<strong>${esc(peor.nombre)}</strong>` })
+        : t("Tus 6 indicadores están en rango. El siguiente paso es convertir esa atención en ventas.")}</p>
+      <table class="lab-tabla">
+        <thead><tr><th>${t("Indicador")}</th><th>${t("Resultado")}</th>${antes ? `<th>${t("Antes")}</th>` : ""}<th>${t("Rango sano")}</th></tr></thead>
+        <tbody>${ind.map((i, n) => `
+          <tr class="${i.estado}">
+            <td>${esc(i.nombre)}<small>${t(ESTADOS[i.estado])}</small></td>
+            <td class="lab-valor">${esc(i.valor)}</td>
+            ${antes ? `<td class="lab-antes">${esc(antes[n].valor)}</td>` : ""}
+            <td class="lab-rango">${esc(i.rango)}</td>
+          </tr>`).join("")}</tbody>
+      </table>
+      <p class="lab-pie">${t("Valores de referencia de ART LAB para cuentas de negocio que venden por Instagram.")}</p>
+    </article>
+    ${receta ? verReceta() : bloqueada()}`;
 }
 
-function resultado() {
-  const r = informe;
-  const ai = r?.ai;
-  const tarjeta = `
-    <div class="au-oscura">
-      <p>${t("Tu cuenta tiene {n} seguidores.", { n: `<strong>${fmt(teaser.followers)}</strong>` })}</p>
-      <div class="au-grande"><b>${teaser.without_cta}</b><span>${t("de {n}", { n: teaser.sample })}</span></div>
-      <p>${t("de tus últimos posts no le piden nada a quien te ve")}</p>
-      <div class="au-cita">${t("Tu audiencia te ve, pero nadie sabe qué hacer después.")}</div>
-    </div>`;
-  if (!r) {
-    return `<section class="au-res">${cabecera()}
-      <p class="au-diag">${esc(teaser.diagnosis)}</p>
-      ${tarjeta}
-      <button class="btn block au-cta" id="au-ver">${t("Ver mi auditoría completa")}</button>
+function bloqueada() {
+  return `
+    <section class="card lab-receta lab-cerrada">
+      <span class="label">${t("Tu receta")}</span>
+      <h2>${t("Qué hacer con estos <em>resultados</em>")}</h2>
+      <ul class="lab-incluye">
+        <li>${t("3 ajustes prioritarios para tu cuenta")}</li>
+        <li>${t("2 guiones de Reel para tu negocio")}</li>
+        <li>${t("Un plan para los próximos 30 días")}</li>
+      </ul>
+      <div class="msg error ${error ? "" : "hidden"}">${esc(error)}</div>
+      ${session
+        ? `<button class="btn block" id="lab-receta" ${ocupado ? "disabled" : ""}>${ocupado ? t("Preparando tu receta…") : t("Ver mi receta")}</button>`
+        : `<button class="btn block" id="lab-crear">${t("Crear mi cuenta y ver mi receta")}</button>
+           <button class="linkbtn lab-entrar" id="lab-entrar">${t("Ya tengo cuenta")}</button>
+           <p class="muted lab-nota">${t("Con tu cuenta, tu análisis queda guardado para compararlo el próximo mes.")}</p>`}
     </section>`;
-  }
-  const guiones = ai ? ai.guiones : r.scripts.map((s) => ({ titulo: "", gancho: s.hook, desarrollo: s.body, cta: s.cta }));
-  const cambios = ai ? ai.cambios : r.top3;
-  return `<section class="au-res">${cabecera()}
-    <p class="au-diag">${esc(ai ? ai.diagnostico : r.diagnosis)}</p>
-    ${tarjeta}
+}
 
-    <div class="card au-puntaje">
-      <span class="label">${t("Tu auditoría personalizada")}</span>
-      <div class="au-score"><b>${r.score}</b><span>/100</span></div>
-      <p class="muted">${t("Potencial de tu cuenta hoy")}</p>
-      <div class="au-notas">${r.scores.map((s) => `<div><b>${s.value}</b><strong>${ETIQUETAS.includes(s.label) ? t(s.label) : esc(s.label)}</strong><small>${esc(s.note)}</small></div>`).join("")}</div>
-    </div>
-
-    <div class="au-oscura">
-      <span class="label au-claro">${t("Tu cuenta ahora mismo")}</span>
-      <ul class="au-balas">${r.bullets.map((b) => `<li><strong>${esc(b.strong)}</strong> ${esc(b.text)}</li>`).join("")}</ul>
-    </div>
-
-    ${ai ? `<div class="card"><span class="label">${t("Hallazgos principales")}</span>
-      <ul class="au-hallazgos">${ai.hallazgos.map((h) => `<li><strong>${esc(h.titulo)}</strong><p>${esc(h.detalle)}</p></li>`).join("")}</ul></div>` : ""}
-
-    <div class="au-seccion">
-      <span class="label">${t("Lo que ART LAB Tools ya preparó para ti")}</span>
-      <h2>${t("Tus guiones <em>personalizados</em>")}</h2>
-      <p><span class="au-chip">${t("Nicho detectado: {n}", { n: esc(ai ? ai.nicho : r.niche.label) })}</span></p>
-    </div>
-    ${guiones.map((g, i) => `
-      <article class="card au-guion">
-        <span class="au-chip">${t("Guion {n}", { n: i + 1 })}</span>
+function verReceta() {
+  const r = receta;
+  return `
+    <section class="card lab-receta">
+      <span class="label">${t("Tu receta")}</span>
+      ${r.nicho ? `<p class="lab-nicho">${esc(r.nicho)}</p>` : ""}
+      <p class="lab-diag">${esc(r.diagnostico)}</p>
+      ${r.hallazgos?.length ? `<h3>${t("Lo que encontramos")}</h3><ul class="lab-hallazgos">${r.hallazgos.map((h) => `<li><strong>${esc(h.titulo)}</strong><p>${esc(h.detalle)}</p></li>`).join("")}</ul>` : ""}
+      <h3>${t("Ajustes prioritarios")}</h3>
+      <ol class="lab-ajustes">${r.ajustes.map((a) => `<li>${esc(a)}</li>`).join("")}</ol>
+    </section>
+    ${r.guiones.map((g, i) => `
+      <section class="card lab-guion">
+        <span class="lab-chip">${t("Guion {n}", { n: i + 1 })}</span>
         <h3>${esc(g.gancho)}</h3>
         <p>${esc(g.desarrollo)}</p>
-        <div class="au-cta-txt"><small>CTA</small>${esc(g.cta)}</div>
-      </article>`).join("")}
-
-    <div class="card au-bloqueo">
-      <div class="au-borroso"><i></i><i></i><i></i></div>
-      <div class="au-candado" aria-hidden="true">🔒</div>
-      <h3>${t("Tu calendario de 30 días, listo")}</h3>
-      <p class="muted">${t("Deja de partir de cero cada vez: ideas, ganchos y guiones armados para tu negocio, listos para grabar.")}</p>
-      <a class="btn" href="${urlApp()}">${t("Desbloquear ART LAB Tools")} →</a>
-    </div>
-
-    <div class="card au-suave">
-      <span class="au-chip">💡 ${t("Lo más importante")}</span>
-      <h2>${t("3 cosas que deberías cambiar primero")}</h2>
-      <ol class="au-top">${cambios.map((c) => `<li>${esc(c)}</li>`).join("")}</ol>
-    </div>
-
-    ${ai ? `<div class="card"><span class="label">${t("Tu plan de acción")}</span>
-      <p class="muted" style="margin:4px 0 8px">${t("Pasos para los próximos 30 días")}</p>
-      <ol class="au-plan">${ai.plan.map((p) => `<li><div><strong>${esc(p.paso)}</strong><span class="au-prio ${esc(p.prioridad)}">${t(PRIORIDADES[p.prioridad] || PRIORIDADES.media)}</span></div><p>${esc(p.detalle)}</p></li>`).join("")}</ol></div>` : ""}
-
-    ${venta()}
-  </section>
-  <div class="au-fija"><a class="btn block" href="${urlApp()}">${t("Comenzar ahora")}</a></div>`;
+        <div class="lab-cta"><small>${t("Llamado a la acción")}</small>${esc(g.cta)}</div>
+        <button class="btn ghost small" data-copy="${esc([g.gancho, g.desarrollo, g.cta].join("\n\n"))}">${t("Copiar")}</button>
+      </section>`).join("")}
+    ${r.plan?.length ? `<section class="card"><span class="label">${t("Plan de 30 días")}</span>
+      <ol class="lab-plan">${r.plan.map((p) => `<li><div><strong>${esc(p.paso)}</strong><span class="lab-prio ${esc(p.prioridad)}">${t(PRIORIDADES[p.prioridad] || PRIORIDADES.media)}</span></div><p>${esc(p.detalle)}</p></li>`).join("")}</ol></section>` : ""}
+    ${laboratorio()}`;
 }
 
-function venta() {
+function laboratorio() {
+  const q = new URLSearchParams({ ig: muestra.teaser.username, rubro: (receta?.nicho || "").slice(0, 80) });
   return `
-    <div class="card au-venta">
-      <h2>${t("Nunca más abras Instagram <em>sin saber qué publicar</em>")}</h2>
-      <p class="muted">${t("Todo lo que necesitas para que tu contenido te traiga clientas, en una sola app.")}</p>
-      <ul class="au-incluye">${INCLUYE.map(([a, b]) => `<li><strong>${t(a)}</strong><span>${t(b)}</span></li>`).join("")}</ul>
-      <a class="btn block au-cta" href="${urlApp()}">${t("Quiero empezar")}</a>
-      <p class="muted au-nota">${t("Empiezas con 20 créditos para crear tus primeros guiones.")}</p>
-    </div>`;
-}
-
-function urlApp() {
-  const u = new URL("/contenido/", location.origin);
-  if (teaser) u.searchParams.set("ig", teaser.username);
-  if (informe) u.searchParams.set("rubro", (informe.ai?.nicho || "").slice(0, 80));
-  return u.pathname + u.search;
-}
-
-function modal() {
-  return `
-    <div class="au-modal" role="dialog" aria-modal="true" aria-labelledby="au-modal-t">
-      <form class="card" id="au-correo">
-        <button type="button" class="au-cerrar" id="au-cerrar" aria-label="${t("Cerrar")}">✕</button>
-        <div class="au-sobre" aria-hidden="true">✉️</div>
-        <h2 id="au-modal-t">${t("Desbloquea tu auditoría")} 👀</h2>
-        <p>${t("Deja tu correo y te mostramos exactamente <em>qué cambiar primero</em> en tu cuenta.")}</p>
-        <div class="au-input">
-          <input id="au-email" type="email" inputmode="email" autocomplete="email" placeholder="${t("tu@correo.com")}" required aria-label="${t("Tu correo")}">
-          <button class="btn" type="submit" ${enviando ? "disabled" : ""}>${enviando ? t("Preparando…") : t("Desbloquear")}</button>
-        </div>
-        <label class="consent"><input type="checkbox" id="au-ok" checked><span>${t("Acepto la política de privacidad y recibir mi auditoría por correo.")}</span></label>
-        <div class="msg error ${error ? "" : "hidden"}">${esc(error)}</div>
-        <p class="muted au-nota">${t("Sin spam. Solo tu auditoría.")}</p>
-      </form>
-    </div>`;
+    <section class="lab-app">
+      <span class="lab-chip">ART LAB Tools</span>
+      <h2>${t("Tu laboratorio de <em>contenido</em>")}</h2>
+      <p class="muted">${t("Analiza tu cuenta, planifica lo que publicas y ordena tu negocio, en una sola app.")}</p>
+      <div class="lab-partes">
+        <div class="card"><strong>${t("Instagram")}</strong><span>${t("Repite el análisis cada mes y mira tu evolución.")}</span></div>
+        <div class="card"><strong>${t("Contenido")}</strong><span>${t("Guiones, ganchos y calendario escritos con tu voz.")}</span></div>
+        <div class="card"><strong>${t("Finanzas")}</strong><span>${t("Ventas, gastos y lo que realmente ganas cada mes.")}</span></div>
+      </div>
+      <a class="btn block" href="/contenido/?${q}">${t("Ir a Contenido")}</a>
+    </section>`;
 }
 
 function enlazar() {
   const $ = (id) => document.getElementById(id);
-  $("au-form")?.addEventListener("submit", analizar);
-  $("au-ver")?.addEventListener("click", () => { puerta = true; error = ""; pintar(); $("au-email")?.focus(); });
-  $("au-cerrar")?.addEventListener("click", () => { puerta = false; pintar(); });
-  $("au-correo")?.addEventListener("submit", desbloquear);
+  $("lab-form")?.addEventListener("submit", analizar);
+  $("lab-receta")?.addEventListener("click", pedirReceta);
+  $("lab-crear")?.addEventListener("click", () => cuenta("signup"));
+  $("lab-entrar")?.addEventListener("click", () => cuenta("login"));
+  $("lab-ultimo")?.addEventListener("click", () => {
+    muestra = { audit_id: ultimo.audit_id, teaser: { username: ultimo.handle, followers: ultimo.resultados.followers, profile_picture_url: "" }, metrics: ultimo.resultados, fecha: ultimo.created_at };
+    receta = ultimo.receta; previo = null; vista = "resultados"; pintar(); scrollTo({ top: 0 });
+  });
+  app.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = t("Copiado"); } catch { /* sin portapapeles */ }
+  }));
 }
 
 async function analizar(e) {
   e.preventDefault();
-  handle = document.getElementById("au-handle").value.trim().replace(/^@/, "").toLowerCase();
+  handle = document.getElementById("lab-handle").value.trim().replace(/^@/, "").toLowerCase();
   error = "";
   if (!/^[a-z0-9._]{1,30}$/.test(handle)) { error = t(ERRORES.invalid_handle); return pintar(); }
   vista = "cargando"; pintar();
-  const items = [...document.querySelectorAll("#au-pasos li")];
+  const items = [...document.querySelectorAll("#lab-pasos li")];
   let i = 0;
-  const timer = setInterval(() => { if (i < items.length) items[i++].classList.add("on"); }, 900);
+  const timer = setInterval(() => { if (i < items.length) items[i++].classList.add("on"); }, 850);
   try {
-    const [res] = await Promise.all([llamar({ action: "analyze", handle, utm }), new Promise((r) => setTimeout(r, 4600))]);
-    auditId = res.audit_id; teaser = res.teaser; vista = "resultado";
+    const [res] = await Promise.all([llamar({ action: "analyze", handle, utm }), new Promise((r) => setTimeout(r, 4400))]);
+    muestra = { audit_id: res.audit_id, teaser: res.teaser, metrics: res.metrics, fecha: new Date().toISOString() };
+    receta = null; previo = null;
+    try { localStorage.setItem(PENDIENTE, JSON.stringify(muestra)); } catch { /* sin almacenamiento */ }
+    if (session) {
+      const { data } = await supabase.from("instagram_analisis").select("*").eq("handle", handle).order("created_at", { ascending: false }).limit(1);
+      previo = data?.[0] || null;
+    }
+    vista = "resultados";
   } catch (x) {
     error = t(ERRORES[x.message] || ERRORES.audit_failed); vista = "inicio";
   }
@@ -237,20 +255,39 @@ async function analizar(e) {
   scrollTo({ top: 0 });
 }
 
-async function desbloquear(e) {
-  e.preventDefault();
-  error = "";
-  if (!document.getElementById("au-ok").checked) { error = t(ERRORES.consent_required); return pintar(); }
-  const email = document.getElementById("au-email").value.trim();
-  enviando = true; pintar();
-  document.getElementById("au-email").value = email;
+// Crear cuenta o entrar sin salir del laboratorio; al volver se pide la receta
+function cuenta(modo) {
+  const capa = document.createElement("div");
+  capa.className = "lab-capa";
+  document.body.appendChild(capa);
+  const caja = document.createElement("div");
+  capa.appendChild(caja);
+  const cerrar = document.createElement("button");
+  cerrar.className = "lab-cerrar"; cerrar.type = "button"; cerrar.textContent = "✕"; cerrar.setAttribute("aria-label", t("Cerrar"));
+  cerrar.onclick = () => capa.remove();
+  capa.appendChild(cerrar);
+  renderAuth(caja, {
+    initialMode: modo,
+    title: t("Entra para ver tu receta"),
+    onReady: (s) => { session = s; capa.remove(); location.reload(); },
+  });
+}
+
+async function pedirReceta() {
+  if (ocupado || !muestra) return;
+  ocupado = true; error = ""; pintar();
   try {
-    const res = await llamar({ action: "unlock", audit_id: auditId, email, consent: true, lang });
-    informe = res.report; puerta = false;
-    try { localStorage.setItem("artlab_tools_auditoria", JSON.stringify({ id: auditId, ig: teaser.username, nicho: informe.ai?.nicho || "" })); } catch { /* sin almacenamiento */ }
+    const res = await llamar({ action: "receta", audit_id: muestra.audit_id, tools_token: session.access_token, lang });
+    receta = res.receta;
+    const { data: ya } = await supabase.from("instagram_analisis").select("id").eq("audit_id", muestra.audit_id).maybeSingle();
+    if (ya) await supabase.from("instagram_analisis").update({ receta }).eq("id", ya.id);
+    else await supabase.from("instagram_analisis").insert({ user_id: session.user.id, handle: muestra.teaser.username, audit_id: muestra.audit_id, resultados: { ...muestra.metrics, followers: muestra.teaser.followers }, receta });
+    try { localStorage.removeItem(PENDIENTE); } catch { /* sin almacenamiento */ }
   } catch (x) {
     error = t(ERRORES[x.message] || ERRORES.audit_failed);
   }
-  enviando = false;
+  ocupado = false;
   pintar();
 }
+
+await iniciar();

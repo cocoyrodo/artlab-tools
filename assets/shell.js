@@ -1,7 +1,7 @@
 // Estructura común de ART LAB Tools, igual a la App ART LAB:
 // logo arriba, contenido al centro y barra de navegación flotante abajo.
-import { supabase } from "/assets/auth.js?v=20261028b";
-import { t, selectorIdioma, activarSelector } from "/assets/i18n.js?v=20261028b";
+import { supabase } from "/assets/auth.js?v=20261028c";
+import { t, selectorIdioma, activarSelector } from "/assets/i18n.js?v=20261028c";
 
 export const ICONS = {
   instagram: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg>`,
@@ -14,7 +14,7 @@ export const ICONS = {
 };
 
 export const TOOLS = [
-  { id: "instagram", nombre: "Instagram", detalle: "Auditoría de tu cuenta", href: "/auditoria/", activa: true },
+  { id: "instagram", nombre: "Instagram", detalle: "Laboratorio de tu cuenta", href: "/auditoria/", activa: true },
   { id: "finanzas", nombre: "Finanzas", detalle: "Ventas, gastos y ganancias", href: "/finanzas/", activa: true },
   { id: "calculadora", nombre: "Calculadora", detalle: "Precio de tus servicios" },
   { id: "organizador", nombre: "Organizador", detalle: "Agenda y clientas" },
